@@ -1,0 +1,25 @@
+{
+  "name": "rm6785_bot",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "SamarV-121",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "dotenv": "^16.0.3",
+    "telegraf": "^4.12.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.8"
+  }
+}
