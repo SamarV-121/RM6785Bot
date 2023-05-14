@@ -139,12 +139,14 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                         bot.sendMessage(chatId, `Scheduled to post in ${timeout / 60000}m`, { reply_to_message_id: messageId });
                         copyTimeout = setTimeout(() => {
                             bot.copyMessage(telegramRMX2001, chatId, messageId).then((copiedMessage) => {
-                                bot.forwardMessage(telegramRM6785, telegramRMX2001, copiedMessage.message_id);
+                                bot.forwardMessage(telegramRM6785, telegramRMX2001, copiedMessage.message_id).then((forwardedMsg) => {
+                                    bot.pinChatMessage(telegramRM6785, forwardedMsg.message_id);
+                                });
                                 delete messageVotes[messageId];
-                            })
+                            });
                         }, timeout);
                         timeoutIds.push(copyTimeout);
-                    })
+                    });
                 }
             }
         }
