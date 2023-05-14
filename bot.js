@@ -18,14 +18,17 @@ const messageVotes = {};
 const timeoutIds = [];
 let copyTimeout;
 let sticketMessageId = null;
-let isValid = false;
+let botId;
+let isValid;
 
 bot.getMe().then((me) => {
-    let botId = me.id;
+    botId = me.id;
     console.log(`Bot has started, bot ID is ${botId}`);
 }).catch((error) => console.error(error));
 
 bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
+    isValid = false;
+
     try {
         const chatId = msg.chat.id;
         let messageId = msg.message_id;
@@ -51,13 +54,13 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
         }
 
         if (msg.text !== "/lint" && !authorizedUsers.some(user => user.id === msg.from.id)) {
-            sendTelegramMessage(bot, chatId, 'You are not authorized to use this command', msg.message_id);
+            bot.sendMessage(chatId, 'You are not authorized to use this command', { reply_to_message_id: messageId });
             return;
         }
 
         if (msg.text.match(/\/(rm)?auth/)) {
             if (!msg.reply_to_message) {
-                bot.sendMessage(chatId, 'Quote to user\'s message', { reply_to_message_id: messageId });
+                bot.sendMessage(chatId, 'Reply to user\'s message', { reply_to_message_id: messageId });
                 return;
             }
 
@@ -107,10 +110,20 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                     messageVotes[messageId] = {};
                 }
 
+                if (isValid) {
+                    userId = botId;
+                }
+
+                const currentVotes = messageVotes[messageId] ? Object.keys(messageVotes[messageId]).length : 0;
+                if (currentVotes >= maxVotes) {
+                  bot.sendMessage(chatId, `This post already has enough approvals (${currentVotes}/${maxVotes})`, { reply_to_message_id: messageId });
+                  return;
+                }
+
                 if (!messageVotes[messageId][userId]) {
                     messageVotes[messageId][userId] = '+1';
                 } else {
-                    bot.sendMessage(chatId, 'You have already voted for it ', { reply_to_message_id: messageId });
+                    bot.sendMessage(chatId, `User ${userId} have already voted for it`, { reply_to_message_id: messageId });
                     return;
                 }
             }
