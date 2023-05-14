@@ -139,7 +139,7 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                         bot.sendMessage(chatId, `Scheduled to post in ${timeout / 60000}m`, { reply_to_message_id: messageId });
                         copyTimeout = setTimeout(() => {
                             bot.copyMessage(telegramRMX2001, chatId, messageId).then((copiedMessage) => {
-                                bot.forwardMessage(telegramRM6785, chatId, copiedMessage.message_id);
+                                bot.forwardMessage(telegramRM6785, telegramRMX2001, copiedMessage.message_id);
                                 delete messageVotes[messageId];
                             })
                         }, timeout);
@@ -156,7 +156,9 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                 if (timeoutIndex !== -1) {
                     timeoutIds.splice(timeoutIndex, 1);
                 }
-                bot.deleteMessage(telegramRMX2001, sticketMessageId);
+                bot.deleteMessage(telegramRMX2001, sticketMessageId).then(() => {
+                    bot.sendMessage(chatId, "Successfully cancelled the recent scheduled post.", { reply_to_message_id: messageId });
+                });
             }
         }
     } catch (error) {
