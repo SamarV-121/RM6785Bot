@@ -132,6 +132,11 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
             bot.sendMessage(chatId, `Approval count (${votes}/${maxVotes})`, { reply_to_message_id: messageId });
 
             if (msg.text == "/post") {
+                if (messageVotes[messageId] && messageVotes[messageId].posted) {
+                    bot.sendMessage(chatId, "This message has already been scheduled for posting.", { reply_to_message_id: messageId });
+                    return;
+                }
+
                 if (votes >= maxVotes) {
                     bot.sendSticker(telegramRMX2001, telegramSticker).then((sentSticker) => {
                         sticketMessageId = sentSticker.message_id;
@@ -142,7 +147,7 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                                 bot.forwardMessage(telegramRM6785, telegramRMX2001, copiedMessage.message_id).then((forwardedMsg) => {
                                     bot.pinChatMessage(telegramRM6785, forwardedMsg.message_id);
                                 });
-                                delete messageVotes[messageId];
+                                messageVotes[messageId].posted = true;
                             });
                         }, timeout);
                         timeoutIds.push(copyTimeout);
