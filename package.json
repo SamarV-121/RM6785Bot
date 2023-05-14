@@ -1,0 +1,16 @@
+{
+  "name": "rm6785_bot",
+  "version": "1.0.0",
+  "description": "",
+  "exports": "./main.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "author": "SamarV-121",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@octokit/rest": "^19.0.7",
+    "dotenv": "^16.0.3",
+    "node-telegram-bot-api": "^0.54.0"
+  }
+}
