@@ -116,8 +116,8 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
 
                 const currentVotes = messageVotes[messageId] ? Object.keys(messageVotes[messageId]).length : 0;
                 if (currentVotes >= maxVotes) {
-                  bot.sendMessage(chatId, `This post already has enough approvals (${currentVotes}/${maxVotes})`, { reply_to_message_id: messageId });
-                  return;
+                    bot.sendMessage(chatId, `This post already has enough approvals (${currentVotes}/${maxVotes})`, { reply_to_message_id: messageId });
+                    return;
                 }
 
                 if (!messageVotes[messageId][userId]) {
@@ -142,12 +142,12 @@ bot.onText(/^(\+1|\/post|\/(ls|rm)?auth|\/lint|\/cancel)$/, async (msg) => {
                         sticketMessageId = sentSticker.message_id;
 
                         bot.sendMessage(chatId, `Scheduled to post in ${timeout / 60000}m`, { reply_to_message_id: messageId });
+                        messageVotes[messageId].posted = true;
                         copyTimeout = setTimeout(() => {
                             bot.copyMessage(telegramRMX2001, chatId, messageId).then((copiedMessage) => {
                                 bot.forwardMessage(telegramRM6785, telegramRMX2001, copiedMessage.message_id).then((forwardedMsg) => {
                                     bot.pinChatMessage(telegramRM6785, forwardedMsg.message_id);
                                 });
-                                messageVotes[messageId].posted = true;
                             });
                         }, timeout);
                         timeoutIds.push(copyTimeout);
