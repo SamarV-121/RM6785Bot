@@ -26,4 +26,7 @@ const handleCancelCommand = (ctx) => {
   }
 };
 
-module.exports = handleCancelCommand;
+const helpMessage =
+  "/cancel - Cancel the scheduled post (reply to post which you want to cancel)";
+
+module.exports = { handleCancelCommand, helpMessage };

@@ -14,4 +14,7 @@ const handleAuthCommand = async (ctx) => {
   }
 };
 
-module.exports = handleAuthCommand;
+const helpMessage =
+  "/auth - Authorize a user review and post messages to channel";
+
+module.exports = { handleAuthCommand, helpMessage };

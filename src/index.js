@@ -1,12 +1,13 @@
 const dotenv = require("dotenv");
 const { Telegraf } = require("telegraf");
-const handleAuthCommand = require("./commands/authCommand");
-const handleLsAuthCommand = require("./commands/lsauthCommand");
-const handleRmAuthCommand = require("./commands/rmauthCommand");
-const handlePostCommand = require("./commands/postCommand");
-const handleCancelCommand = require("./commands/cancelCommand");
-const handleVoteCommand = require("./commands/voteCommand");
-const handleLintCommand = require("./commands/lintCommand");
+const handleHelpCommand = require("./commands/helpCommand");
+const { handleAuthCommand } = require("./commands/authCommand");
+const { handleLsAuthCommand } = require("./commands/lsauthCommand");
+const { handleRmAuthCommand } = require("./commands/rmauthCommand");
+const { handlePostCommand } = require("./commands/postCommand");
+const { handleCancelCommand } = require("./commands/cancelCommand");
+const { handleVoteCommand } = require("./commands/voteCommand");
+const { handleLintCommand } = require("./commands/lintCommand");
 const authMiddleware = require("./middlewares/authMiddleware");
 const replyToMessageMiddleware = require("./middlewares/replyToMessageMiddleware");
 
@@ -24,6 +25,7 @@ bot.context.replyToMessage = function (replyText) {
   });
 };
 
+bot.command("help", handleHelpCommand);
 bot.command("lint", replyToMessageMiddleware, handleLintCommand);
 bot.command("lsauth", handleLsAuthCommand);
 bot.command(

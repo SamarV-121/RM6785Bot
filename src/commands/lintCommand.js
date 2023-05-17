@@ -1,5 +1,5 @@
 const lintTelegramPost = require("../utils/lintUtils");
-const handleVoteCommand = require("./voteCommand");
+const { handleVoteCommand } = require("./voteCommand");
 
 const handleLintCommand = async (ctx) => {
   const [lintResult, lintSuccessful] = lintTelegramPost(
@@ -21,4 +21,7 @@ const handleLintCommand = async (ctx) => {
   }
 };
 
-module.exports = handleLintCommand;
+const commandName = "/lint";
+const helpMessage = `${commandName} - Lint a post`;
+
+module.exports = { handleLintCommand, helpMessage };

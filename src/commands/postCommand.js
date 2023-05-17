@@ -71,4 +71,6 @@ const handlePostCommand = (ctx) => {
     });
 };
 
-module.exports = handlePostCommand;
+const helpMessage = "/post - Post";
+
+module.exports = { handlePostCommand, helpMessage };

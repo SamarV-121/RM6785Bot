@@ -16,4 +16,6 @@ const handleRmAuthCommand = async (ctx) => {
   }
 };
 
-module.exports = handleRmAuthCommand;
+const helpMessage = "/rmauth - Unauthorize a user from using /post";
+
+module.exports = { handleRmAuthCommand, helpMessage };

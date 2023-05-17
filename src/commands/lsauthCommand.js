@@ -11,4 +11,6 @@ const handleLsAuthCommand = async (ctx) => {
   });
 };
 
-module.exports = handleLsAuthCommand;
+const helpMessage = "/lsauth - List authorized users";
+
+module.exports = { handleLsAuthCommand, helpMessage };

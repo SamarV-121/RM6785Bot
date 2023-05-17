@@ -34,4 +34,6 @@ const handleVoteCommand = async (ctx) => {
   ctx.replyToMessage(`Approval count (${votes}/${MAX_VOTES})`);
 };
 
-module.exports = handleVoteCommand;
+const helpMessage = "+1 - Approve a post";
+
+module.exports = { handleVoteCommand, helpMessage };
