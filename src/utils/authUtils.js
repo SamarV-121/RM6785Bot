@@ -5,6 +5,10 @@ const { GIST_TOKEN } = process.env;
 
 const octokit = new Octokit({ auth: GIST_TOKEN });
 
+/**
+ * Fetches the authorized users from a Gist.
+ * @returns {Promise<Array>} An array of authorized user objects.
+ */
 async function getAuthorizedUsers() {
   try {
     const { data } = await octokit.gists.get({ gist_id: GIST_ID });
@@ -24,6 +28,10 @@ async function getAuthorizedUsers() {
   }
 }
 
+/**
+ * Uploads the current list of authorized users to a Gist.
+ * @returns {Promise<void>} A Promise that resolves when the upload is complete.
+ */
 async function uploadAuthorizedUsers(jsonData) {
   try {
     const { data } = await octokit.gists.update({
@@ -41,6 +49,11 @@ async function uploadAuthorizedUsers(jsonData) {
   }
 }
 
+/**
+ * Adds a user to the list of authorized users.
+ * @param {Object} user The user object to add to the list.
+ * @returns {Promise<boolean>} A Promise that resolves to true if the user was added successfully, false if they were already authorized.
+ */
 async function addAuthorizedUser(user) {
   const authorizedUsers = await getAuthorizedUsers();
 
@@ -62,6 +75,11 @@ async function addAuthorizedUser(user) {
   }
 }
 
+/**
+ * Removes a user from the list of authorized users.
+ * @param {number} userId The ID of the user to remove from the list.
+ * @returns {Promise<boolean>} A Promise that resolves to true if the user was removed successfully, false if they were not found in the list.
+ */
 async function removeAuthorizedUser(userId) {
   const authorizedUsers = await getAuthorizedUsers();
 
@@ -82,6 +100,11 @@ async function removeAuthorizedUser(userId) {
   }
 }
 
+/**
+ * Checks if a user is authorized to use the bot.
+ * @param {number} userId The ID of the user to check.
+ * @returns {Promise<boolean>} A Promise that resolves to true if the user is authorized, false otherwise.
+ */
 async function isAuthorized(userId) {
   const authorizedUsers = await getAuthorizedUsers();
   return authorizedUsers.some((u) => u.id === userId);
