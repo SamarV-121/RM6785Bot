@@ -57,19 +57,45 @@ handlerFiles.forEach((handlerFile) => {
       bot.command(command, commandHandler);
 
       // Store registered commands to be used in /help
-      registeredCommands.push({ command: handler.command, help: handler.help });
+      registeredCommands.push({
+        command: `/${command}`,
+        description: handler.help,
+      });
+
+      console.log(`INFO: Successfully registered '${command}' command`);
     }
   });
 });
 
-// Register the /help command to display all registered commands and their help messages
-bot.command("help", (ctx) => {
-  let helpMessage = "Available commands:\n\n";
-  registeredCommands.forEach((commandHandler) => {
-    helpMessage += `/${commandHandler.command} - ${commandHandler.help}\n`;
+// Fetch all of the registered commands
+bot.telegram
+  .getMyCommands()
+  .then((fetchedCommands) => {
+    const existingCommands = new Map(
+      fetchedCommands.map(({ command }) => [command, true])
+    );
+
+    // Filter out commands that are already registered
+    const commandsToRegister = registeredCommands.filter(
+      ({ command }) => !existingCommands.has(command)
+    );
+
+    // Register the missing commands
+    if (commandsToRegister.length > 0) {
+      bot.telegram
+        .setMyCommands([...fetchedCommands, ...commandsToRegister])
+        .catch((error) => {
+          console.log(
+            `ERROR: Failed to register the slash commands:\n${error.message}`
+          );
+        });
+    }
+  })
+  .catch((error) => {
+    console.log(
+      `ERROR: Failed to fetch the registered commands:\n${error.message}`
+    );
   });
-  ctx.replyToMessage(helpMessage);
-});
 
 bot.start((ctx) =>
   ctx.replyToMessage(
