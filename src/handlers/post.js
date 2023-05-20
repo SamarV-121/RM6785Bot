@@ -1,8 +1,7 @@
 const {
   messageInfo,
   timeoutIds,
-  hasEnoughVotes,
-  currentVotes,
+  MessageUtils,
 } = require("../utils/messageUtils");
 const {
   POST_TIMEOUT,
@@ -12,11 +11,10 @@ const {
   TELEGRAM_RM6785_CHAT,
 } = require("../constants");
 
-const handlePostCommand = (ctx) => {
-  const { message } = ctx;
-  const chatId = message.chat.id;
-  const messageId = message.reply_to_message.message_id;
-  const votes = currentVotes(messageId);
+const postHandler = (ctx) => {
+  const chatId = ctx.message.chat.id;
+  const messageId = ctx.message.reply_to_message.message_id;
+  const votes = MessageUtils.currentVotes(messageId);
 
   if (!messageInfo[messageId]) {
     messageInfo[messageId] = {};
@@ -27,7 +25,7 @@ const handlePostCommand = (ctx) => {
     return;
   }
 
-  if (!hasEnoughVotes(messageId)) {
+  if (!MessageUtils.hasEnoughVotes(messageId)) {
     ctx.replyToMessage(
       `This message does not have enough approvals (${votes}/${MAX_VOTES})`
     );
@@ -71,6 +69,10 @@ const handlePostCommand = (ctx) => {
     });
 };
 
-const helpMessage = "/post - Post";
-
-module.exports = { handlePostCommand, helpMessage };
+module.exports = {
+  command: "post",
+  help: "Post a approved message onto the channel",
+  auth: true,
+  reply_to_message: true,
+  execute: postHandler,
+};

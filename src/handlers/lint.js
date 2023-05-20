@@ -1,7 +1,8 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 const lintTelegramPost = require("../utils/lintUtils");
-const { handleVoteCommand } = require("./voteCommand");
+const { execute } = require("./vote");
 
-const handleLintCommand = async (ctx) => {
+const lintHandler = async (ctx) => {
   const [lintResult, lintSuccessful] = lintTelegramPost(
     ctx.message.reply_to_message.caption
   );
@@ -17,11 +18,13 @@ const handleLintCommand = async (ctx) => {
       },
     };
 
-    handleVoteCommand(voteCommandCtx);
+    execute(voteCommandCtx);
   }
 };
 
-const commandName = "/lint";
-const helpMessage = `${commandName} - Lint a post`;
-
-module.exports = { handleLintCommand, helpMessage };
+module.exports = {
+  command: "lint",
+  help: "Lint a post",
+  reply_to_message: true,
+  execute: lintHandler,
+};

@@ -1,7 +1,7 @@
-const { removeAuthorizedUser } = require("../utils/authUtils");
+const AuthUtils = require("../utils/authUtils");
 
-const handleRmAuthCommand = async (ctx) => {
-  const removed = await removeAuthorizedUser(
+const rmauthHandler = async (ctx) => {
+  const removed = await AuthUtils.removeAuthorizedUser(
     ctx.message.reply_to_message.from.id
   );
   if (removed) {
@@ -16,6 +16,10 @@ const handleRmAuthCommand = async (ctx) => {
   }
 };
 
-const helpMessage = "/rmauth - Unauthorize a user from using /post";
-
-module.exports = { handleRmAuthCommand, helpMessage };
+module.exports = {
+  command: "rmauth",
+  help: "Unauthorize a user from using /post",
+  su: true,
+  reply_to_message: true,
+  execute: rmauthHandler,
+};

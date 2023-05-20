@@ -5,11 +5,13 @@ const { GIST_TOKEN } = process.env;
 
 const octokit = new Octokit({ auth: GIST_TOKEN });
 
+const AuthUtils = {};
+
 /**
  * Fetches the authorized users from a Gist.
  * @returns {Promise<Array>} An array of authorized user objects.
  */
-async function getAuthorizedUsers() {
+AuthUtils.getAuthorizedUsers = async () => {
   try {
     const { data } = await octokit.gists.get({ gist_id: GIST_ID });
     const { files } = data;
@@ -24,15 +26,16 @@ async function getAuthorizedUsers() {
     return [{ id: 1138003186, name: "SamarV-121" }];
   } catch (error) {
     console.error("Error fetching Gist data:", error);
-    return false;
+    return [];
   }
-}
+};
 
 /**
  * Uploads the current list of authorized users to a Gist.
- * @returns {Promise<void>} A Promise that resolves when the upload is complete.
+ * @param {Object} jsonData - The JSON data representing the authorized users.
+ * @returns {Promise<string|boolean>} - A Promise that resolves with the ID of the uploaded Gist, or `false` if an error occurs.
  */
-async function uploadAuthorizedUsers(jsonData) {
+AuthUtils.uploadAuthorizedUsers = async (jsonData) => {
   try {
     const { data } = await octokit.gists.update({
       gist_id: GIST_ID,
@@ -47,15 +50,15 @@ async function uploadAuthorizedUsers(jsonData) {
     console.error("Error uploading Gist data:", error);
     return false;
   }
-}
+};
 
 /**
  * Adds a user to the list of authorized users.
  * @param {Object} user The user object to add to the list.
  * @returns {Promise<boolean>} A Promise that resolves to true if the user was added successfully, false if they were already authorized.
  */
-async function addAuthorizedUser(user) {
-  const authorizedUsers = await getAuthorizedUsers();
+AuthUtils.addAuthorizedUser = async (user) => {
+  const authorizedUsers = await AuthUtils.getAuthorizedUsers();
 
   if (authorizedUsers.some((u) => u.id === user.id)) {
     return false;
@@ -67,21 +70,21 @@ async function addAuthorizedUser(user) {
   });
 
   try {
-    await uploadAuthorizedUsers(authorizedUsers);
+    await AuthUtils.uploadAuthorizedUsers(authorizedUsers);
     return true;
   } catch (error) {
     console.error(error);
     return false;
   }
-}
+};
 
 /**
  * Removes a user from the list of authorized users.
  * @param {number} userId The ID of the user to remove from the list.
  * @returns {Promise<boolean>} A Promise that resolves to true if the user was removed successfully, false if they were not found in the list.
  */
-async function removeAuthorizedUser(userId) {
-  const authorizedUsers = await getAuthorizedUsers();
+AuthUtils.removeAuthorizedUser = async (userId) => {
+  const authorizedUsers = await AuthUtils.getAuthorizedUsers();
 
   const index = authorizedUsers.findIndex((u) => u.id === userId);
 
@@ -92,27 +95,22 @@ async function removeAuthorizedUser(userId) {
   authorizedUsers.splice(index, 1);
 
   try {
-    await uploadAuthorizedUsers(authorizedUsers);
+    await AuthUtils.uploadAuthorizedUsers(authorizedUsers);
     return true;
   } catch (error) {
     console.error(error);
     return false;
   }
-}
+};
 
 /**
  * Checks if a user is authorized to use the bot.
  * @param {number} userId The ID of the user to check.
  * @returns {Promise<boolean>} A Promise that resolves to true if the user is authorized, false otherwise.
  */
-async function isAuthorized(userId) {
-  const authorizedUsers = await getAuthorizedUsers();
+AuthUtils.isAuthorized = async (userId) => {
+  const authorizedUsers = await AuthUtils.getAuthorizedUsers();
   return authorizedUsers.some((u) => u.id === userId);
-}
-
-module.exports = {
-  getAuthorizedUsers,
-  addAuthorizedUser,
-  removeAuthorizedUser,
-  isAuthorized,
 };
+
+module.exports = AuthUtils;

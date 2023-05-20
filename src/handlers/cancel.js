@@ -1,9 +1,8 @@
 const { timeoutIds, messageInfo } = require("../utils/messageUtils");
 
-const handleCancelCommand = (ctx) => {
-  const { message } = ctx;
-  const chatId = message.chat.id;
-  const messageId = message.reply_to_message.message_id;
+const cancleHandler = (ctx) => {
+  const chatId = ctx.message.chat.id;
+  const messageId = ctx.message.reply_to_message.message_id;
 
   const voteData = messageInfo[messageId];
   if (voteData && voteData.stickerMessageId) {
@@ -26,7 +25,10 @@ const handleCancelCommand = (ctx) => {
   }
 };
 
-const helpMessage =
-  "/cancel - Cancel the scheduled post (reply to post which you want to cancel)";
-
-module.exports = { handleCancelCommand, helpMessage };
+module.exports = {
+  command: "cancel",
+  help: "Cancel the scheduled post (reply to post which you want to cancel)",
+  auth: true,
+  reply_to_message: true,
+  execute: cancleHandler,
+};
