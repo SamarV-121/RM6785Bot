@@ -55,17 +55,16 @@ handlerFiles.forEach((handlerFile) => {
       bot.hears(command, commandHandler);
     } else {
       bot.command(command, commandHandler);
+
+      // Store registered commands to be used in /help
+      registeredCommands.push({
+        command: `/${command}`,
+        description: handler.help,
+      });
+
+      console.log(`INFO: Successfully registered '${command}' command`);
     }
   });
-
-  // Store registered commands to be used in /help
-  registeredCommands.push({
-    command: `/${handler.command}`, // To register a command, this needs to be in /command format
-    description: handler.help,
-  });
-
-  // Log the registered command as information
-  console.log(`INFO: Successfully registered the '${handler.command}' command`);
 });
 
 // Fetch all of the registered commands
@@ -79,18 +78,17 @@ if (
   // If both are not the same, register the missing commands from registered commands
   bot.telegram.setMyCommands(registeredCommands).catch((error) => {
     console.log(
-      `ERR: Failed to reigster the slash commands:\n${error.message}`
+      `ERROR: Failed to register the slash commands:\n${error.message}`
     );
   });
 }
 
 // Register the /help command to display all registered commands and their help messages
-// Now you can move this to a seperate file ;))
 bot.command("help", async (ctx) => {
   const registeredMyCommands = await ctx.telegram.getMyCommands();
   let helpMessage = "Available commands:\n\n";
   registeredMyCommands.forEach((command) => {
-    helpMessage += `${command.command} - ${command.description}\n`;
+    helpMessage += `/${command.command} - ${command.description}\n`;
   });
   ctx.replyToMessage(helpMessage);
 });

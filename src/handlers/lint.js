@@ -3,6 +3,10 @@ const lintTelegramPost = require("../utils/lintUtils");
 const { execute } = require("./vote");
 
 const lintHandler = async (ctx) => {
+  if (!ctx.message.reply_to_message.caption) {
+    return ctx.replyToMessage("ERROR: No image found");
+  }
+
   const [lintResult, lintSuccessful] = lintTelegramPost(
     ctx.message.reply_to_message.caption
   );
@@ -20,6 +24,8 @@ const lintHandler = async (ctx) => {
 
     execute(voteCommandCtx);
   }
+
+  return Promise.resolve();
 };
 
 module.exports = {

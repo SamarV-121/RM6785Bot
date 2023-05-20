@@ -1,4 +1,4 @@
-function lintTelegramPost(text) {
+const lintTelegramPost = (text) => {
   let errors = "";
   const hashtags = text.match(/#\w+/g)?.map((tag) => tag.slice(1)) || [];
   if (hashtags.length == 0) return ["ERROR: No hashtags found", false];
@@ -13,16 +13,16 @@ function lintTelegramPost(text) {
   const titleNewlines = text
     .slice(
       text.lastIndexOf(hashtags[hashtags.length - 1]) +
-        hashtags[hashtags.length - 1].length,
+        hashtags[hashtags.length - 1].length
     )
     .slice(
       0,
       text
         .slice(
           text.lastIndexOf(hashtags[hashtags.length - 1]) +
-            hashtags[hashtags.length - 1].length,
+            hashtags[hashtags.length - 1].length
         )
-        .search(/\S/),
+        .search(/\S/)
     )
     .match(/\n/g);
 
@@ -80,7 +80,7 @@ function lintTelegramPost(text) {
 
   if (
     !text.match(
-      /• Build date: (0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}/,
+      /• Build date: (0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}/
     )
   ) {
     errors += "ERROR: Build date\n";
@@ -113,6 +113,6 @@ function lintTelegramPost(text) {
   lintResult = errors === "" ? "Seems good 🤌\nBot approves" : errors;
 
   return [lintResult, lintStatus];
-}
+};
 
 module.exports = lintTelegramPost;
