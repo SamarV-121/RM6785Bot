@@ -8,12 +8,11 @@ dotenv.config();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Custom replyToMessage function to bot context
-bot.context.replyToMessage = function (replyText) {
-  const replyToMessageId = this.message.reply_to_message
-    ? this.message.reply_to_message.message_id
-    : this.message.message_id;
+bot.context.replyToMessage = async function (replyText) {
+  const replyToMessageId =
+    this.message.reply_to_message?.message_id || this.message.message_id;
 
-  this.telegram.sendMessage(this.message.chat.id, replyText, {
+  return this.telegram.sendMessage(this.message.chat.id, replyText, {
     reply_to_message_id: replyToMessageId,
   });
 };

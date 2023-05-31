@@ -1,7 +1,6 @@
-const messageInfo = {};
-const timeoutIds = [];
 const { MAX_VOTES } = require("../constants");
 
+const messageInfo = {};
 const MessageUtils = {};
 
 /**
@@ -33,6 +32,5 @@ MessageUtils.hasEnoughVotes = (messageId) => {
 
 module.exports = {
   messageInfo,
-  timeoutIds,
   MessageUtils,
 };
