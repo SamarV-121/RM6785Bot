@@ -3,12 +3,18 @@ const lintTelegramPost = (text) => {
   const hashtags = text.match(/#\w+/g)?.map((tag) => tag.slice(1)) || [];
   if (hashtags.length == 0) return ["ERROR: No hashtags found", false];
 
-  const hashtag1 = hashtags[0];
-  const hashtag2 = hashtags[1];
-  const hashtag3 = hashtags[2];
-  const hashtag4 = hashtags[3];
-  const hashtag5 = hashtags[4];
-  const hashtag6 = hashtags[5];
+  const POST_ROM = hashtags[0];
+  const POST_STATUS = hashtags[1];
+  const POST_TYPE = hashtags[2];
+  const POST_DEVICE = hashtags[3];
+  const POST_ANDROID_VERSION = hashtags[4];
+  const POST_RUI_VERSION = hashtags[5];
+
+  const STATUSES = ["UNOFFICIAL", "OFFICIAL"];
+  const TYPES = ["ROM", "KERNEL", "RECOVERY"];
+  const DEVICES = ["RM6785", "RMX2001", "RMX2151"];
+  const ANDROID_VERSIONS = ["A10", "A11", "A12", "A13"];
+  const RUI_VERSIONS = ["RUI1", "RUI2", "RUI3"];
 
   const titleNewlines = text
     .slice(
@@ -32,30 +38,34 @@ const lintTelegramPost = (text) => {
     : "";
 
   // Hashtags
-  if (!["UNOFFICIAL", "OFFICIAL"].includes(hashtag2)) {
+  if (!STATUSES.includes(POST_STATUS)) {
     errors +=
       "ERROR: Incorrect status on second hashtag (OFFICIAL/UNOFFICIAL)\n";
   }
-  if (!["ROM", "KERNEL", "RECOVERY"].includes(hashtag3)) {
+
+  if (!TYPES.includes(POST_TYPE)) {
     errors += "ERROR: Incorrect type on 3rd hashtag (ROM/KERNEL/RECOVERY)\n";
   }
-  if (!["RM6785", "RMX2001", "RMX2151"].includes(hashtag4)) {
+
+  if (!DEVICES.includes(POST_DEVICE)) {
     errors +=
       "ERROR: Incorrect device on 4rd hashtag (RM6785/RMX2001/RMX2151)\n";
   }
+
   if (
-    hashtag3 !== "KERNEL" &&
-    !["A10", "A11", "A12", "A13"].includes(hashtag5)
+    POST_TYPE !== "KERNEL" &&
+    !ANDROID_VERSIONS.includes(POST_ANDROID_VERSION)
   ) {
     errors += "ERROR: Incorrect version on 5th hashtag (A10/A11/A12/A13)\n";
-  }
-
-  if (hashtag3 == "KERNEL" && !["RUI1", "RUI2", "RUI3"].includes(hashtag5)) {
+  } else if (
+    POST_TYPE == "KERNEL" &&
+    !RUI_VERSIONS.includes(POST_ANDROID_VERSION)
+  ) {
     errors +=
       "ERROR: Incorrect RealmeUI version on last hashtag (RUI1/RUI2/RUI3)\n";
   }
 
-  if (hashtag3 !== "KERNEL" && !["RUI1", "RUI2", "RUI3"].includes(hashtag6)) {
+  if (POST_TYPE !== "KERNEL" && !RUI_VERSIONS.includes(POST_RUI_VERSION)) {
     errors +=
       "ERROR: Incorrect RealmeUI version on last hashtag (RUI1/RUI2/RUI3)\n";
   }
@@ -74,7 +84,7 @@ const lintTelegramPost = (text) => {
     errors += "ERROR: Author\n";
   }
 
-  if (hashtag3 !== "KERNEL" && !text.match(/• Android version: [0-9].+/)) {
+  if (POST_TYPE !== "KERNEL" && !text.match(/• Android version: [0-9].+/)) {
     errors += "ERROR: Android version\n";
   }
 
@@ -103,7 +113,7 @@ const lintTelegramPost = (text) => {
   if (!text.match(/\nSources/)) {
     errors += "ERROR: Sources.\n";
   }
-  if (hashtag3 !== "KERNEL" && !text.match(/\nScreenshots/)) {
+  if (POST_TYPE !== "KERNEL" && !text.match(/\nScreenshots/)) {
     errors += "ERROR: Screenshots.\n";
   }
   if (!text.match(/\nSupport group/)) {
