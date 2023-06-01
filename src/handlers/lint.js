@@ -4,14 +4,19 @@ const { execute } = require("./vote");
 
 const lintHandler = async (ctx) => {
   if (!ctx.message.reply_to_message.caption) {
-    return ctx.replyToMessage("ERROR: No image found");
+    // Format the ERROR part to bold text
+    // Utilize HTML parsing for formatting the replies
+    return ctx.replyWithHTML("<b>ERROR:</b> No image found", {
+      reply_to_message_id: ctx.message.id,
+    });
   }
 
   const [lintResult, lintSuccessful] = lintTelegramPost(
     ctx.message.reply_to_message.caption
   );
 
-  ctx.replyToMessage(lintResult);
+  // Utilize HTML parsing for formatting the replies
+  ctx.replyWithHTML(lintResult, { reply_to_message_id: ctx.message.id });
 
   if (lintSuccessful) {
     const voteCommandCtx = {
