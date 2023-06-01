@@ -6,9 +6,12 @@ const lintHandler = async (ctx) => {
   if (!ctx.message.reply_to_message.caption) {
     // Format the ERROR part to bold text
     // Utilize HTML parsing for formatting the replies
-    return ctx.replyWithHTML("<b>ERROR:</b> No image found", {
-      reply_to_message_id: ctx.message.id,
-    });
+    return ctx.replyWithHTML(
+      "<b>ERROR:</b> No ROM banner was found. Please provide a banner for the ROM.",
+      {
+        reply_to_message_id: ctx.message.id,
+      }
+    );
   }
 
   const [lintResult, lintSuccessful] = lintTelegramPost(
