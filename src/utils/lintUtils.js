@@ -90,6 +90,12 @@ const lintTelegramPost = (text) => {
       ERROR_MESSAGE + "Please put two newlines after the sixth hashtag.\n";
   }
 
+  // title correctness
+  if (!title.includes("for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G") &&
+      !title.includes("for Realme 6 ONLY")) {
+    errors += ERROR_MESSAGE + "Missing or incorrect order of device in title.\n"
+  }
+
   if (!stage) {
     errors +=
       ERROR_MESSAGE +
