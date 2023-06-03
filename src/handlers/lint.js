@@ -9,7 +9,7 @@ const lintHandler = async (ctx) => {
     return ctx.replyWithHTML(
       "<b>ERROR:</b> No ROM banner was found. Please provide a banner for the ROM.",
       {
-        reply_to_message_id: ctx.message.id,
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
       }
     );
   }
@@ -19,7 +19,7 @@ const lintHandler = async (ctx) => {
   );
 
   // Utilize HTML parsing for formatting the replies
-  ctx.replyWithHTML(lintResult, { reply_to_message_id: ctx.message.id });
+  ctx.replyWithHTML(lintResult, { reply_to_message_id: ctx.message.reply_to_message.message_id });
 
   if (lintSuccessful) {
     const voteCommandCtx = {
