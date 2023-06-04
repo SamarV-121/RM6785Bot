@@ -22,11 +22,11 @@ const restartBot = async () => {
 
     await bot.telegram.sendMessage(
       chatId,
-      `[${latestRemoteCommit.substring(
+      `<a href="${latestCommitUrl}">${latestRemoteCommit.substring(
         0,
         7
-      )}](${latestCommitUrl}): ${latestCommitMessage}\n\nRestarting the bot`,
-      { parse_mode: "Markdown" }
+      )}</a>: ${latestCommitMessage}\n\nRestarting the bot`,
+      { parse_mode: "HTML" }
     );
 
     await execSync("npm start -- --ci", { stdio: "inherit" });
