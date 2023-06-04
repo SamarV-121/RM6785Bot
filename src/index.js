@@ -1,8 +1,11 @@
 const { readdirSync } = require("fs");
 const { Telegraf } = require("telegraf");
 const Middleware = require("./middlewares");
+const commitListener = require("./ci");
 const config = require("./config");
+const yargs = require("yargs");
 
+const argv = yargs.argv;
 const bot = new Telegraf(config.BOT_TOKEN);
 
 // Custom replyToMessage function to bot context
@@ -98,4 +101,10 @@ bot.telegram
   });
 
 bot.start((ctx) => ctx.replyToMessage("Chup bsdk"));
+
+if (argv.ci) {
+  console.log("Starting the bot with CI");
+  setInterval(commitListener, 5000);
+}
+
 bot.launch();
