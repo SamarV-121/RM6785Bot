@@ -1,11 +1,9 @@
-const dotenv = require("dotenv");
 const { readdirSync } = require("fs");
 const { Telegraf } = require("telegraf");
 const Middleware = require("./middlewares");
+const config = require("./config");
 
-dotenv.config();
-
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf(config.BOT_TOKEN);
 
 // Custom replyToMessage function to bot context
 bot.context.replyToMessage = async function (replyText) {

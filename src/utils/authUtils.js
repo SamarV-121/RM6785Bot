@@ -1,9 +1,8 @@
 const { Octokit } = require("@octokit/rest");
 
-const { GIST_ID } = process.env;
-const { GIST_TOKEN } = process.env;
+const config = require("../config");
 
-const octokit = new Octokit({ auth: GIST_TOKEN });
+const octokit = new Octokit({ auth: config.GIST_TOKEN });
 
 const AuthUtils = {};
 
@@ -13,7 +12,7 @@ const AuthUtils = {};
  */
 AuthUtils.getAuthorizedUsers = async () => {
   try {
-    const { data } = await octokit.gists.get({ gist_id: GIST_ID });
+    const { data } = await octokit.gists.get({ gist_id: config.GIST_ID });
     const { files } = data;
 
     if ("auth.json" in files) {
@@ -38,7 +37,7 @@ AuthUtils.getAuthorizedUsers = async () => {
 AuthUtils.uploadAuthorizedUsers = async (jsonData) => {
   try {
     const { data } = await octokit.gists.update({
-      gist_id: GIST_ID,
+      gist_id: config.GIST_ID,
       files: {
         "auth.json": {
           content: JSON.stringify(jsonData, null, 2),
