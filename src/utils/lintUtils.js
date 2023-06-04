@@ -1,4 +1,4 @@
-const lintTelegramPost = (text) => {
+const lintTelegramPost = (text, entities) => {
   const ERROR_MESSAGE = "<b>ERROR:</b> ";
 
   let errors = "";
@@ -90,10 +90,42 @@ const lintTelegramPost = (text) => {
       ERROR_MESSAGE + "Please put two newlines after the sixth hashtag.\n";
   }
 
-  // title correctness
+  // Title correctness
   if (!title.includes("for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G") &&
       !title.includes("for Realme 6 ONLY")) {
     errors += ERROR_MESSAGE + "Missing or incorrect order of device in title.\n"
+  }
+
+  // Bold checks
+  let bold_notes = false;
+  let bold_changelog = false;
+  let bold_bugs = false;
+  let bold_downloads = false;
+
+  // Notes may be omitted, in that case
+  // set it to true so we don't fail the test
+  if (!text.includes("Notes")) {
+    bold_notes = true;
+  }
+
+  let all_bold_entities = entities.filter(entity => { return entity.type === "bold" });
+
+  let word;
+  for (const entity of all_bold_entities) {
+    word = text.substring(entity.offset, entity.offset+entity.length-1);
+    if (word === "Notes") bold_notes = true;
+    else if (word === "Changelog") bold_changelog = true;
+    else if (word === "Bugs") bold_bugs = true;
+    else if (word === "Downloads") bold_downloads = true;
+    else null;  // Some other word that are bold, ignore for now
+  }
+
+  if (!bold_bugs || !bold_changelog || !bold_downloads || !bold_notes) {
+    errors += ERROR_MESSAGE + "Bold error, bold statuses:\n";
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Changelog: ${bold_changelog}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Bugs: ${bold_bugs}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Notes: ${bold_notes}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Downloads: ${bold_downloads}\n`;
   }
 
   if (!stage) {
