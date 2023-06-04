@@ -1,8 +1,10 @@
 const { readdirSync } = require("fs");
 const { Telegraf } = require("telegraf");
+const yargs = require("yargs");
 const Middleware = require("./middlewares");
 const config = require("./config");
 
+const { argv } = yargs;
 const bot = new Telegraf(config.BOT_TOKEN);
 
 // Custom replyToMessage function to bot context
@@ -102,4 +104,14 @@ bot.start((ctx) =>
     "Hola, amigo. I'm RM6785Bot, specially created to handle posts on the RM6785 telegram channel.\nSpank /help to know more about me"
   )
 );
+
 bot.launch();
+
+module.exports = bot;
+
+if (argv.ci) {
+  console.log("Starting the bot with CI");
+  const commitListener = require("./ci");
+
+  setInterval(commitListener, 5000);
+}
