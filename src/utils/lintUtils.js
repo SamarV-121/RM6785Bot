@@ -1,4 +1,4 @@
-const lintTelegramPost = (text, entities) => {
+const lintTelegramPost = (text, entities, ctx) => {
   const ERROR_MESSAGE = "<b>ERROR:</b> ";
 
   let errors = "";
@@ -112,11 +112,12 @@ const lintTelegramPost = (text, entities) => {
 
   let word;
   for (const entity of all_bold_entities) {
-    word = text.substring(entity.offset, entity.offset+entity.length-1);
-    if (word === "Notes") bold_notes = true;
-    else if (word === "Changelog") bold_changelog = true;
-    else if (word === "Bugs") bold_bugs = true;
-    else if (word === "Downloads") bold_downloads = true;
+    word = text.substring(entity.offset, entity.offset+entity.length);
+    ctx.replyToMessage(`DEBUG[bold-for-loop]: Word is: '${word}'`);
+    if (word.includes("Notes")) bold_notes = true;
+    else if (word.includes("Changelog")) bold_changelog = true;
+    else if (word.includes("Bugs")) bold_bugs = true;
+    else if (word.includes("Downloads")) bold_downloads = true;
     else null;  // Some other word that are bold, ignore for now
   }
 

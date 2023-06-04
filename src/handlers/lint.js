@@ -15,7 +15,7 @@ const lintHandler = async (ctx) => {
   }
 
   const [lintResult, lintSuccessful] = lintTelegramPost(
-    ctx.message.reply_to_message.caption, ctx.message.reply_to_message.caption_entities
+    ctx.message.reply_to_message.caption, ctx.message.reply_to_message.caption_entities, ctx
   );
 
   // Utilize HTML parsing for formatting the replies
