@@ -97,6 +97,7 @@ const lintTelegramPost = (text, entities, ctx) => {
   }
 
   // Bold checks
+  let boldTitle = false;
   let boldNotes = false;
   let boldChangelog = false;
   let boldBugs = false;
@@ -117,10 +118,20 @@ const lintTelegramPost = (text, entities, ctx) => {
     else if (word.includes("Changelog")) boldChangelog = true;
     else if (word.includes("Bugs")) boldBugs = true;
     else if (word.includes("Downloads")) boldDownloads = true;
+    else if (
+      word.includes(
+        "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
+      ) ||
+      word.includes("for Realme 6 ONLY")
+    ) {
+      boldTitle = true;
+    }
   });
 
+  /* eslint-disable prefer-template */
   if (!boldBugs || !boldChangelog || !boldDownloads || !boldNotes) {
     errors += ERROR_MESSAGE + "Bold error, bold statuses:\n";
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Title: ${boldTitle}\n`;
     errors += " ".repeat(ERROR_MESSAGE.length) + `    Changelog: ${boldChangelog}\n`;
     errors += " ".repeat(ERROR_MESSAGE.length) + `    Bugs: ${boldBugs}\n`;
     errors += " ".repeat(ERROR_MESSAGE.length) + `    Notes: ${boldNotes}\n`;
@@ -128,9 +139,12 @@ const lintTelegramPost = (text, entities, ctx) => {
   }
 
   // link checks
-  let all_link_entities = entities.filter(entity => { return entity.type === "text_link" });
-  if (all_link_entities.length <= 0) {
-    errors += ERROR_MESSAGE + "There is no link at all in your post, are you sure?\n"
+  const allLinkEntities = entities.filter(
+    (entity) => entity.type === "text_link"
+  );
+  if (allLinkEntities.length <= 0) {
+    errors +=
+      ERROR_MESSAGE + "There is no link at all in your post, are you sure?\n";
   }
 
   if (!stage) {
