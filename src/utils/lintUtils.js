@@ -128,6 +128,12 @@ const lintTelegramPost = (text, entities) => {
     errors += " ".repeat(ERROR_MESSAGE.length) + `    Downloads: ${bold_downloads}\n`;
   }
 
+  // link checks
+  let all_link_entities = entities.filter(entity => { return entity.type === "text_link" });
+  if (all_link_entities.length <= 0) {
+    errors += ERROR_MESSAGE + "There is no link at all in your post, are you sure?\n"
+  }
+
   if (!stage) {
     errors +=
       ERROR_MESSAGE +
