@@ -97,36 +97,34 @@ const lintTelegramPost = (text, entities, ctx) => {
   }
 
   // Bold checks
-  let bold_notes = false;
-  let bold_changelog = false;
-  let bold_bugs = false;
-  let bold_downloads = false;
+  let boldNotes = false;
+  let boldChangelog = false;
+  let boldBugs = false;
+  let boldDownloads = false;
 
   // Notes may be omitted, in that case
   // set it to true so we don't fail the test
   if (!text.includes("Notes")) {
-    bold_notes = true;
+    boldNotes = true;
   }
 
-  let all_bold_entities = entities.filter(entity => { return entity.type === "bold" });
+  const allBoldEntities = entities.filter((entity) => entity.type === "bold");
 
   let word;
-  for (const entity of all_bold_entities) {
-    word = text.substring(entity.offset, entity.offset+entity.length);
-    ctx.replyToMessage(`DEBUG[bold-for-loop]: Word is: '${word}'`);
-    if (word.includes("Notes")) bold_notes = true;
-    else if (word.includes("Changelog")) bold_changelog = true;
-    else if (word.includes("Bugs")) bold_bugs = true;
-    else if (word.includes("Downloads")) bold_downloads = true;
-    else null;  // Some other word that are bold, ignore for now
-  }
+  allBoldEntities.forEach((entity) => {
+    word = text.substring(entity.offset, entity.offset + entity.length);
+    if (word.includes("Notes")) boldNotes = true;
+    else if (word.includes("Changelog")) boldChangelog = true;
+    else if (word.includes("Bugs")) boldBugs = true;
+    else if (word.includes("Downloads")) boldDownloads = true;
+  });
 
-  if (!bold_bugs || !bold_changelog || !bold_downloads || !bold_notes) {
+  if (!boldBugs || !boldChangelog || !boldDownloads || !boldNotes) {
     errors += ERROR_MESSAGE + "Bold error, bold statuses:\n";
-    errors += " ".repeat(ERROR_MESSAGE.length) + `    Changelog: ${bold_changelog}\n`;
-    errors += " ".repeat(ERROR_MESSAGE.length) + `    Bugs: ${bold_bugs}\n`;
-    errors += " ".repeat(ERROR_MESSAGE.length) + `    Notes: ${bold_notes}\n`;
-    errors += " ".repeat(ERROR_MESSAGE.length) + `    Downloads: ${bold_downloads}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Changelog: ${boldChangelog}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Bugs: ${boldBugs}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Notes: ${boldNotes}\n`;
+    errors += " ".repeat(ERROR_MESSAGE.length) + `    Downloads: ${boldDownloads}\n`;
   }
 
   // link checks
