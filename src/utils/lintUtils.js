@@ -191,6 +191,16 @@ const lintTelegramPost = (text, entities) => {
 
     if (!text.match(new RegExp(matchPattern))) {
       errorMessage += "• Incorrect case.\n";
+    } else {
+      if (!boldChangelog) {
+        errorMessage += "• Missing bold format on Changelog\n";
+      }
+      if (!boldBugs) {
+        errorMessage += "• Missing bold format on Bugs\n";
+      }
+      if (!boldNotes) {
+        errorMessage += "• Missing bold format on Notes\n";
+      }
     }
 
     if (!text.match(/\n\nChangelog\n•/)) {
@@ -207,17 +217,6 @@ const lintTelegramPost = (text, entities) => {
       }
     }
 
-    if (!boldChangelog) {
-      errorMessage += "• Missing bold format on Changelog\n";
-    }
-
-    if (!boldBugs) {
-      errorMessage += "• Missing bold format on Bugs\n";
-    }
-
-    if (!boldNotes) {
-      errorMessage += "• Missing bold format on Notes\n";
-    }
     return errorMessage ? `Changelog/Bugs:\n${errorMessage}` : "";
   };
 
@@ -232,9 +231,7 @@ const lintTelegramPost = (text, entities) => {
 
     if (!text.match(new RegExp(matchPattern))) {
       errorMessage += "• Incorrect case.\n";
-    }
-
-    if (!boldDownloads) {
+    } else if (!boldDownloads) {
       errorMessage += "• Missing bold format on Downloads.\n";
     }
 
