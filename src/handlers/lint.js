@@ -15,11 +15,14 @@ const lintHandler = async (ctx) => {
   }
 
   const [lintResult, lintSuccessful] = lintTelegramPost(
-    ctx.message.reply_to_message.caption, ctx.message.reply_to_message.caption_entities, ctx
+    ctx.message.reply_to_message.caption,
+    ctx.message.reply_to_message.caption_entities
   );
 
   // Utilize HTML parsing for formatting the replies
-  ctx.replyWithHTML(lintResult, { reply_to_message_id: ctx.message.reply_to_message.message_id });
+  ctx.replyWithHTML(lintResult, {
+    reply_to_message_id: ctx.message.reply_to_message.message_id,
+  });
 
   if (lintSuccessful) {
     const voteCommandCtx = {
