@@ -90,6 +90,8 @@ const lintTelegramPost = (text, entities) => {
         boldTitle = true;
       }
     });
+
+    return "";
   };
 
   const validateTitle = () => {
@@ -267,13 +269,13 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Footer:\n${errorMessage}` : "";
   };
 
-  const errors = `${validateHashtags()} ${validateBold()} ${validateTitle()}
-${validateBuildInfo()} ${validateChangelogBugs()} ${validateDownloads()}
+  const errors = `\n${validateHashtags()}${validateBold()}${validateTitle()}
+${validateBuildInfo()}${validateChangelogBugs()}${validateDownloads()}
 ${validateFooter()}`;
 
   const lintStatus = errors === "";
   const lintResult =
-    errors === "" ? "Seems good 🤌\nBot approves" : `"<b>ERRORS</b>\n${errors}`;
+    errors === "" ? "Seems good 🤌\nBot approves" : `<b>ERRORS</b>\n${errors}`;
 
   return [lintResult, lintStatus];
 };
