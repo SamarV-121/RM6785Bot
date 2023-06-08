@@ -24,6 +24,8 @@ const handlerFiles = readdirSync(`${__dirname}/handlers`).filter((file) =>
 
 const registeredCommands = [];
 
+module.exports = { registeredCommands };
+
 // Iterate over each handler file
 handlerFiles.forEach((handlerFile) => {
   // eslint-disable-next-line import/no-dynamic-require, global-require
@@ -59,9 +61,11 @@ handlerFiles.forEach((handlerFile) => {
       bot.command(command, commandHandler);
 
       // Store registered commands to be used in /help
+      const prio = handler.priority ?? 0;
       registeredCommands.push({
         command: `/${command}`,
         description: handler.help,
+        priority: prio, // used for sorting help message
       });
 
       console.log(`INFO: Successfully registered '${command}' command`);
@@ -107,7 +111,7 @@ bot.start((ctx) =>
 
 bot.launch();
 
-module.exports = bot;
+module.exports = { bot };
 
 if (argv.ci) {
   console.log("Starting the bot with CI");
