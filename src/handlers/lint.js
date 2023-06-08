@@ -41,7 +41,7 @@ const lintHandler = async (ctx) => {
 
 module.exports = {
   command: "lint",
-  help: "Lint a post",
+  help: "Check the formatting and style of a post.",
   reply_to_message: true,
   execute: lintHandler,
 };

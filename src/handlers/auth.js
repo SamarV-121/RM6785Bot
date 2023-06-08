@@ -18,7 +18,7 @@ const authHandler = async (ctx) => {
 
 module.exports = {
   command: "auth",
-  help: "Authorize a user review and post messages to channel",
+  help: "Authorize a user to review and post messages to channel.",
   su: true,
   reply_to_message: true,
   execute: authHandler,

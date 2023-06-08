@@ -30,7 +30,7 @@ const voteHandler = async (ctx) => {
 
 module.exports = {
   command: "approve or +1",
-  help: "Approve a message to be posted",
+  help: "Approve a message to be posted on the channel.",
   auth: true,
   reply_to_message: true,
   execute: voteHandler,

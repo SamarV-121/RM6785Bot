@@ -95,7 +95,7 @@ const postHandler = async (ctx) => {
 
 module.exports = {
   command: "post",
-  help: "Post a approved message onto the channel",
+  help: "Publish an approved message on the channel.",
   auth: true,
   reply_to_message: true,
   execute: postHandler,

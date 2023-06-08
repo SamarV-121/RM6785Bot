@@ -33,7 +33,7 @@ const cancleHandler = (ctx) => {
 
 module.exports = {
   command: "cancel",
-  help: "Cancel the scheduled post (reply to post which you want to cancel)",
+  help: "Cancel a scheduled post. Please reply to the post you want to cancel.",
   auth: true,
   reply_to_message: true,
   execute: cancleHandler,

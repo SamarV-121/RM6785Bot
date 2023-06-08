@@ -10,6 +10,6 @@ const helpHandler = async (ctx) => {
 
 module.exports = {
   command: "help",
-  help: "Find out about all the commands",
+  help: "Get information about all available commands.",
   execute: helpHandler,
 };

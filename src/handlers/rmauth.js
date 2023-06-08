@@ -18,7 +18,7 @@ const rmauthHandler = async (ctx) => {
 
 module.exports = {
   command: "rmauth",
-  help: "Unauthorize a user from using /post",
+  help: "Unauthorize a user from using the /post command.",
   su: true,
   reply_to_message: true,
   execute: rmauthHandler,

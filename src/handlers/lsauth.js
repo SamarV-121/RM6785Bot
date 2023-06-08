@@ -13,6 +13,6 @@ const lsauthHandler = async (ctx) => {
 
 module.exports = {
   command: "lsauth",
-  help: "List authorized users",
+  help: "List all authorized users who can post messages on the channel.",
   execute: lsauthHandler,
 };
