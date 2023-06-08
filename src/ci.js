@@ -15,22 +15,28 @@ const pullChanges = () =>
   git.fetch("origin", "master").then(() => git.checkout("origin/master"));
 
 const restartBot = async () => {
+  const chatId = "-1001801695556";
+
   try {
     await pullChanges();
 
     await bot.telegram.sendMessage(
-      "-1001801695556",
-      `[${latestRemoteCommit.substring(
+      chatId,
+      `<a href="${latestCommitUrl}">${latestRemoteCommit.substring(
         0,
         7
-      )}](${latestCommitUrl}): ${latestCommitMessage}\n\nRestarting the bot`,
-      { parse_mode: "Markdown" }
+      )}</a>: ${latestCommitMessage}\n\nRestarting the bot`,
+      { parse_mode: "HTML" }
     );
 
-    execSync("npm start -- --ci", { stdio: "inherit" });
+    await execSync("npm start -- --ci", { stdio: "inherit" });
     process.exit(0);
   } catch (error) {
     console.error(`Failed to restart bot: ${error.message}`);
+    await bot.telegram.sendMessage(
+      chatId,
+      `Failed to restart bot: ${error.message}`
+    );
   }
 };
 
