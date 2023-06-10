@@ -270,9 +270,10 @@ const lintTelegramPost = (text, entities) => {
 ${validateBuildInfo()}${validateChangelogBugs()}${validateDownloads()}
 ${validateFooter()}`;
 
-  const lintStatus = errors === "";
-  const lintResult =
-    errors === "" ? "Seems good 🤌\nBot approves" : `<b>ERRORS</b>\n${errors}`;
+  const lintStatus = !errors.trim();
+  const lintResult = lintStatus
+    ? "Seems good 🤌\nBot approves"
+    : `<b>ERRORS</b>\n${errors}`;
 
   return [lintResult, lintStatus];
 };
