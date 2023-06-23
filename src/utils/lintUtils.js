@@ -85,7 +85,7 @@ const lintTelegramPost = (text, entities) => {
         word.includes(
           "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
         ) ||
-        word.includes("for Realme 6 ONLY")
+        word.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY")
       ) {
         boldTitle = true;
       }
@@ -123,14 +123,14 @@ const lintTelegramPost = (text, entities) => {
     }
 
     if (!boldTitle) {
-      errorMessage += "• Missing bold format on title";
+      errorMessage += "• Missing bold format on title\n";
     }
 
     if (
       !title.includes(
         "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
       ) &&
-      !title.includes("for Realme 6 ONLY")
+      !title.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY")
     ) {
       errorMessage += "• Missing or incorrect order of device in title.\n";
     }
