@@ -3,6 +3,7 @@ const { Telegraf } = require("telegraf");
 const yargs = require("yargs");
 const Middleware = require("./middlewares");
 const config = require("./config");
+const linter = require("./handlers/lint");
 
 const { argv } = yargs;
 const bot = new Telegraf(config.BOT_TOKEN);
@@ -108,6 +109,23 @@ bot.start((ctx) =>
     "Hola, amigo. I'm RM6785Bot, specially created to handle posts on the RM6785 telegram channel.\nSpank /help to know more about me"
   )
 );
+
+bot.on("message", async (ctx) => {
+  if (typeof ctx.message.caption === "undefined") return;
+
+  // recovery is currently not supported by linter,
+  // so let's not trigger the linter if # is recovery.
+  if (
+    ctx.message.caption.search("#ROM") !== -1 ||
+    ctx.message.caption.search("#KERNEL") !== -1
+  ) {
+    ctx.message.reply_to_message = {
+      caption: ctx.message.caption,
+      caption_entities: ctx.message.caption_entities,
+    };
+    linter.execute(ctx);
+  }
+});
 
 bot.launch();
 
