@@ -12,7 +12,7 @@ const Middleware = {};
 Middleware.suMiddleware = async (ctx, next) => {
   const userId = ctx.from.id;
 
-  if (userId !== TELEGRAM_SU_ID) {
+  if (!TELEGRAM_SU_ID.includes(userId)) {
     return ctx.replyToMessage("You are not authorized to use this command.");
   }
 
