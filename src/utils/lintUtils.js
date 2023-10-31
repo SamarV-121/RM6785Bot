@@ -85,7 +85,8 @@ const lintTelegramPost = (text, entities) => {
         word.includes(
           "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
         ) ||
-        word.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY")
+        word.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY") ||
+          word.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
       ) {
         boldTitle = true;
       }
