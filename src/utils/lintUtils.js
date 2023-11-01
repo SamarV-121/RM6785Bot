@@ -257,11 +257,14 @@ const lintTelegramPost = (text, entities) => {
     }
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
-      return "Footer:\n• Invalid footer section.";
+      return "Footer:\n• Invalid footer section." +
+        "\n  Should be written exactly like this:" +
+        matchPattern;
     }
 
     if (!text.match(new RegExp(matchPattern))) {
-      errorMessage += "• Incorrect case.\n";
+      errorMessage += "• Incorrect case.\n"
+      errorMessage += "Correct usage:" + matchPattern
     }
 
     return errorMessage ? `Footer:\n${errorMessage}` : "";
