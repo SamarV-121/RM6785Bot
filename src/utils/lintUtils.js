@@ -28,7 +28,7 @@ const lintTelegramPost = (text, entities) => {
 
     const RELEASE_TYPE = ["UNOFFICIAL", "OFFICIAL"];
     const BUILD_TYPE = ["ROM", "KERNEL", "RECOVERY"];
-    const DEVICE = ["RM6785", "RMX2001", "RMX2151"];
+    const DEVICE = ["RM6785", "RMX2001", "RMX2151", "salaa"];
     const ANDROID_VERSION = ["A10", "A11", "A12", "A13"];
     const RUI_VERSION = ["RUI1", "RUI2", "RUI3"];
 
@@ -48,9 +48,9 @@ const lintTelegramPost = (text, entities) => {
 
     if (!DEVICE.includes(TAG_DEVICE)) {
       if (KERNEL) {
-        errorMessage += `• Incorrect device mentioned on the third hashtag. (RM6785/RMX2001/RMX2151)\n`;
+        errorMessage += `• Incorrect device mentioned on the third hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
       } else {
-        errorMessage += `• Incorrect device mentioned on the fourth hashtag. (RM6785/RMX2001/RMX2151)\n`;
+        errorMessage += `• Incorrect device mentioned on the fourth hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
       }
     }
 
