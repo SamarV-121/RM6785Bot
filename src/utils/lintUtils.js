@@ -26,10 +26,14 @@ const lintTelegramPost = (text, entities) => {
       [TAG_DEVICE, TAG_RUI_VER] = [hashtags[2], hashtags[3]];
     }
 
+    if (TAG_ANDROID_VER.includes("RMX")) {
+      [TAG_ANDROID_VER, TAG_RUI_VER] = [hashtags[5], hashtags[6]];
+    }
+
     const RELEASE_TYPE = ["UNOFFICIAL", "OFFICIAL"];
     const BUILD_TYPE = ["ROM", "KERNEL", "RECOVERY"];
     const DEVICE = ["RM6785", "RMX2001", "RMX2151", "salaa"];
-    const ANDROID_VERSION = ["A10", "A11", "A12", "A13"];
+    const ANDROID_VERSION = ["A10", "A11", "A12", "A13", "A14"];
     const RUI_VERSION = ["RUI1", "RUI2", "RUI3"];
 
     if (hashtags.length === 0) {
@@ -86,7 +90,7 @@ const lintTelegramPost = (text, entities) => {
           "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
         ) ||
         word.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY") ||
-          word.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
+        word.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
       ) {
         boldTitle = true;
       }
@@ -132,7 +136,7 @@ const lintTelegramPost = (text, entities) => {
         "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
       ) &&
       !title.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY") &&
-        !title.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
+      !title.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
     ) {
       errorMessage += "• Missing or incorrect order of device in title.\n";
     }
@@ -258,14 +262,16 @@ const lintTelegramPost = (text, entities) => {
     }
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
-      return "Footer:\n• Invalid footer section." +
+      return (
+        "Footer:\n• Invalid footer section." +
         "\n  Should be written exactly like this:" +
-        matchPattern;
+        matchPattern
+      );
     }
 
     if (!text.match(new RegExp(matchPattern))) {
-      errorMessage += "• Incorrect case.\n"
-      errorMessage += "Correct usage:" + matchPattern
+      errorMessage += "• Incorrect case.\n";
+      errorMessage += "Correct usage:" + matchPattern;
     }
 
     return errorMessage ? `Footer:\n${errorMessage}` : "";
