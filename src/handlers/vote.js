@@ -3,7 +3,8 @@ const { MAX_VOTES } = require("../constants");
 
 const voteHandler = async (ctx) => {
   const userId = ctx.message.from.id;
-  const messageId = ctx.message.reply_to_message.message_id;
+  const messageId =
+    ctx.message.reply_to_message.message_id || ctx.message.message_id;
 
   if (MessageUtils.hasUserVoted(messageId, userId)) {
     ctx.replyToMessage(`User ${userId} has already voted for this message.`);
