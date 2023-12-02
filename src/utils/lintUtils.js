@@ -24,9 +24,7 @@ const lintTelegramPost = (text, entities) => {
     if (TAG_BUILD === "KERNEL") {
       KERNEL = true;
       [TAG_DEVICE, TAG_RUI_VER] = [hashtags[2], hashtags[3]];
-    }
-
-    if (TAG_ANDROID_VER.includes("RMX")) {
+    } else if (TAG_ANDROID_VER.includes("RMX")) {
       [TAG_ANDROID_VER, TAG_RUI_VER] = [hashtags[5], hashtags[6]];
     }
 
