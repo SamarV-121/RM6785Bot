@@ -226,8 +226,13 @@ const lintTelegramPost = (text, entities) => {
 
   const validateDownloads = () => {
     let errorMessage = "";
-    const matchPattern =
+    let matchPattern =
       "\n\nDownloads\n• Build type:(.+)?\n• File size:(.+)?\n• Download\n";
+
+    if (KERNEL) {
+      matchPattern =
+        "\n\nDownloads\n• File size:(.+)?\n• Download\n";
+    }
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
       return "Downloads:\n• Invalid Downloads section.";
