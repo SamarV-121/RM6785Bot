@@ -79,6 +79,13 @@ const postHandler = async (ctx) => {
           .catch((error) => {
             console.error(error);
           });
+
+        await ctx.telegram.editMessageText(
+          chatId,
+          sentMessageId,
+          null,
+          "Posted successfully!"
+        );
       } else {
         msg.timeoutId = setTimeout(countdownTimeout, 1000);
       }
