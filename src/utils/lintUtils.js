@@ -98,6 +98,11 @@ const lintTelegramPost = (text, entities) => {
   };
 
   const validateTitle = () => {
+    const validTitles = [
+      "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G",
+      "for Realme 6/6i(Indian)/6s/Narzo ONLY",
+      "for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY",
+    ];
     let errorMessage = "";
     const titleNewlines = text
       .slice(
@@ -129,13 +134,7 @@ const lintTelegramPost = (text, entities) => {
       errorMessage += "• Missing bold format on title\n";
     }
 
-    if (
-      !title.includes(
-        "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G"
-      ) &&
-      !title.includes("for Realme 6/6i(Indian)/6s/Narzo ONLY") &&
-      !title.includes("for Realme 7/Narzo 20 Pro/Narzo 30 4G ONLY")
-    ) {
+    if (!validTitles.some((aValidTitle) => title.includes(aValidTitle))) {
       errorMessage += "• Missing or incorrect order of device in title.\n";
     }
 
@@ -196,15 +195,18 @@ const lintTelegramPost = (text, entities) => {
     if (!text.match(new RegExp(matchPattern))) {
       errorMessage += "• Incorrect case.\n";
     } else {
-      if (!boldChangelog) {
-        errorMessage += "• Missing bold format on Changelog\n";
-      }
-      if (!boldBugs) {
-        errorMessage += "• Missing bold format on Bugs\n";
-      }
-      if (!boldNotes) {
-        errorMessage += "• Missing bold format on Notes\n";
-      }
+      let checks = [
+        {
+          condition: !boldChangelog,
+          errorText: "Missing bold format on Changelog",
+        },
+        { condition: !boldBugs, errorText: "Missing bold format on Bugs" },
+        { condition: !boldNotes, errorText: "Missing bold format on Notes" },
+      ];
+      errorMessage += checks
+        .filter((check) => check.condition)
+        .map((check) => check.errorText)
+        .join("\n");
     }
 
     if (!text.match(/\n\nChangelog\n•/)) {
@@ -230,8 +232,7 @@ const lintTelegramPost = (text, entities) => {
       "\n\nDownloads\n• Build type:(.+)?\n• File size:(.+)?\n• Download\n";
 
     if (KERNEL) {
-      matchPattern =
-        "\n\nDownloads\n• File size:(.+)?\n• Download\n";
+      matchPattern = "\n\nDownloads\n• File size:(.+)?\n• Download\n";
     }
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
@@ -266,15 +267,14 @@ const lintTelegramPost = (text, entities) => {
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
       return (
-        "Footer:\n• Invalid footer section." +
-        "\n  Should be written exactly like this:" +
-        matchPattern
+        `Footer:\n• Invalid footer section.` +
+        `\n  Should be written exactly like this:${matchPattern}`
       );
     }
 
     if (!text.match(new RegExp(matchPattern))) {
       errorMessage += "• Incorrect case.\n";
-      errorMessage += "Correct usage:" + matchPattern;
+      errorMessage += `Correct usage:${matchPattern}`;
     }
 
     return errorMessage ? `Footer:\n${errorMessage}` : "";
