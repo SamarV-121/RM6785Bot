@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable prefer-const */
 /* eslint-disable no-unsafe-optional-chaining */
 const lintTelegramPost = (text, entities) => {
@@ -120,7 +121,12 @@ const lintTelegramPost = (text, entities) => {
       )
       .match(/\n/g);
 
-    const title = text.match(/.*\w+(?= +for).*/)[0];
+    let title;
+    try {
+      title = text.match(/.*\w+(?= +for).*/)[0];
+    } catch (TypeError) {
+      title = null;
+    }
 
     if (!title) {
       return "Title:\n• No title found.";
