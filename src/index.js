@@ -111,17 +111,24 @@ bot.start((ctx) =>
 );
 
 bot.on("message", async (ctx) => {
-  if (typeof ctx.message.caption === "undefined") return;
+  const { message } = ctx;
+
+  // Disable post auto detection in public groups
+  if (message.chat.type === "supergroup" && message.chat.username) {
+    return;
+  }
+
+  if (typeof message.caption === "undefined") return;
 
   // recovery is currently not supported by linter,
   // so let's not trigger the linter if # is recovery.
   if (
-    ctx.message.caption.search("#ROM") !== -1 ||
-    ctx.message.caption.search("#KERNEL") !== -1
+    message.caption.search("#ROM") !== -1 ||
+    message.caption.search("#KERNEL") !== -1
   ) {
-    ctx.message.reply_to_message = {
-      caption: ctx.message.caption,
-      caption_entities: ctx.message.caption_entities,
+    message.reply_to_message = {
+      caption: message.caption,
+      caption_entities: message.caption_entities,
     };
     linter.execute(ctx);
   }
