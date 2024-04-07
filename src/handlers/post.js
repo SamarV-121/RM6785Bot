@@ -7,10 +7,17 @@ const {
   TELEGRAM_RM6785_CHAT,
 } = require("../constants");
 
+let timeoutInMs = POST_TIMEOUT;
+
 const postHandler = async (ctx) => {
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
   const votes = MessageUtils.currentVotes(messageId);
+  const timeoutMatch = ctx.message.text?.match(/\/post (\d+)m/);
+  if (timeoutMatch) {
+    const timeoutInMinutes = timeoutMatch[1];
+    timeoutInMs = timeoutInMinutes * 60000;
+  }
 
   if (!messageInfo[messageId]) {
     messageInfo[messageId] = {};
@@ -41,11 +48,11 @@ const postHandler = async (ctx) => {
     msg.stickerMessageId = sentSticker.message_id;
 
     const sentMessage = await ctx.replyToMessage(
-      `Scheduled to post in ${POST_TIMEOUT / 60000}m`
+      `Scheduled to post in ${timeoutInMs / 60000}m`
     );
     const sentMessageId = sentMessage.message_id;
 
-    let secondsLeft = Math.floor(POST_TIMEOUT / 1000);
+    let secondsLeft = Math.floor(timeoutInMs / 1000);
 
     const countdownTimeout = async () => {
       if (secondsLeft % 5 === 0) {
