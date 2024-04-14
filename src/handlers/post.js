@@ -7,13 +7,12 @@ const {
   TELEGRAM_RM6785_CHAT,
 } = require("../constants");
 
-let timeoutInMs = POST_TIMEOUT;
-
 const postHandler = async (ctx) => {
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
   const votes = MessageUtils.currentVotes(messageId);
   const timeoutMatch = ctx.message.text?.match(/\/post (\d+)m/);
+  let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
     const timeoutInMinutes = timeoutMatch[1];
     timeoutInMs = timeoutInMinutes * 60000;
