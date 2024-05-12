@@ -5,6 +5,7 @@ const {
   TELEGRAM_STICKER_FILE_ID,
   TELEGRAM_RM6785_CHANNEL,
   TELEGRAM_RM6785_CHAT,
+  TELEGRAM_R7_CHAT,
 } = require("../constants");
 
 const postHandler = async (ctx) => {
@@ -74,24 +75,28 @@ const postHandler = async (ctx) => {
 
         msg.isPosted = false;
 
-        const forwardedMsg = await ctx.telegram.forwardMessage(
-          TELEGRAM_RM6785_CHAT,
-          TELEGRAM_RM6785_CHANNEL,
-          copiedMessage.message_id
-        );
-
-        ctx.telegram
-          .pinChatMessage(TELEGRAM_RM6785_CHAT, forwardedMsg.message_id)
-          .catch((error) => {
-            console.error(error);
-          });
-
         await ctx.telegram.editMessageText(
           chatId,
           sentMessageId,
           null,
           "Posted successfully!"
         );
+
+        try {
+          const forwardAndPin = async (fromChat, toChat) => {
+            const forwardedMsg = await ctx.telegram.forwardMessage(
+              toChat,
+              fromChat,
+              copiedMessage.message_id
+            );
+            await ctx.telegram.pinChatMessage(toChat, forwardedMsg.message_id);
+          };
+
+          await forwardAndPin(TELEGRAM_RM6785_CHANNEL, TELEGRAM_RM6785_CHAT);
+          await forwardAndPin(TELEGRAM_RM6785_CHANNEL, TELEGRAM_R7_CHAT);
+        } catch (error) {
+          console.error(error);
+        }
       } else {
         msg.timeoutId = setTimeout(countdownTimeout, 1000);
       }
