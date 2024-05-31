@@ -7,9 +7,16 @@ const deleteHandler = async (ctx: Context<Update>): Promise<void> => {
   if (!("text" in ctx.message)) return;
 
   let msgText: String = ctx.message.text.replace(/^\/delete/, "").trim();
-  let msgToDeleteId: number = Number(msgText);
-  if (Number.isNaN(msgToDeleteId)) {
-    ctx.reply("Invalid message id");
+  let splitMsg: Array<String> = msgText.split("/");
+  if (splitMsg.length === 0) {
+    ctx.reply("Are you sure that's a valid link?");
+    return;
+  }
+
+  let msgToDeleteId: number = Number(splitMsg[splitMsg.length-1]);
+  // Number("") evaluates to 0 so check that as well
+  if (Number.isNaN(msgToDeleteId) || msgToDeleteId === 0) {
+    ctx.reply("Invalid message id, the link you provided is not a message link");
     return;
   }
 
