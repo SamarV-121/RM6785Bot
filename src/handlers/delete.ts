@@ -21,12 +21,12 @@ const deleteHandler = async (ctx: Context<Update>): Promise<void> => {
   }
 
   try {
-  await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgToDeleteId);
+    await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgToDeleteId);
+    (ctx as any).replyToMessage("Requested message deleted");
   } catch (e: any) {
     let err = e as TelegramError;
     ctx.reply(`${err.name}\n${err.message}\n${err.description}`);
   }
-  ctx.reply("Requested message deleted");
 };
 
 module.exports = {
