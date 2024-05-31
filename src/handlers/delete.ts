@@ -1,4 +1,4 @@
-import { Context } from "telegraf";
+import { Context, TelegramError } from "telegraf";
 import { Update } from "telegraf/types";
 const { TELEGRAM_RM6785_CHANNEL } = require("../constants.js");
 
@@ -20,7 +20,12 @@ const deleteHandler = async (ctx: Context<Update>): Promise<void> => {
     return;
   }
 
-  ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgToDeleteId);
+  try {
+  await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgToDeleteId);
+  } catch (e: any) {
+    let err = e as TelegramError;
+    ctx.reply(`${err.name}\n${err.message}\n${err.description}`);
+  }
   ctx.reply("Requested message deleted");
 };
 
