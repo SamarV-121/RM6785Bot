@@ -4,6 +4,7 @@ const yargs = require("yargs");
 const Middleware = require("./middlewares");
 const config = require("./config");
 const linter = require("./handlers/lint");
+const { TELEGRAM_RELEASE_CHAT } = require("./constants");
 
 const { argv } = yargs;
 const bot = new Telegraf(config.BOT_TOKEN);
@@ -135,7 +136,32 @@ bot.on("message", async (ctx) => {
       caption: message.caption,
       caption_entities: message.caption_entities,
     };
-    linter.execute(ctx);
+    if (message.chat.type === "private") {
+      const [lintResult, lintSuccessful] = require("./utils/lintUtils")(
+        message.reply_to_message.caption,
+        message.reply_to_message.caption_entities
+      );
+      ctx.replyWithHTML(lintResult, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id,
+      });
+
+      if (lintSuccessful) {
+        await ctx.telegram.forwardMessage(
+          TELEGRAM_RELEASE_CHAT,
+          message.chat.id,
+          message.message_id
+        );
+        ctx.replyToMessage("Forwarded post in the group for aproval");
+        const updatedCtx = {
+          ...ctx,
+          chat: { ...ctx.chat, id: TELEGRAM_RELEASE_CHAT },
+        };
+
+        require("./handlers/lsauth").execute(updatedCtx);
+      }
+    } else {
+      linter.execute(ctx);
+    }
   }
 });
 

@@ -6,9 +6,7 @@ const lsauthHandler = async (ctx) => {
   authorizedUsers.forEach((user) => {
     message += `[${user.name}](tg://user?id=${user.id})\n`;
   });
-  ctx.replyWithMarkdown(message, {
-    reply_to_message_id: ctx.message.message_id,
-  });
+  ctx.telegram.sendMessage(ctx.chat.id, message, { parse_mode: "Markdown" });
 };
 
 module.exports = {
