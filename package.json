@@ -8,6 +8,9 @@
   },
   "author": "SamarV-121",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@octokit/rest": "^19.0.7",
     "child_process": "^1.0.2",
