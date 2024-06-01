@@ -5,6 +5,7 @@ const Middleware = require("./middlewares");
 const config = require("./config");
 const linter = require("./handlers/lint");
 const { TELEGRAM_RELEASE_CHAT } = require("./constants");
+const UserRequestUtils = require("./utils/userRequestUtils");
 
 const { argv } = yargs;
 const bot = new Telegraf(config.BOT_TOKEN);
@@ -146,12 +147,21 @@ bot.on("message", async (ctx) => {
       });
 
       if (lintSuccessful) {
+        const { MAX_REQUESTS, REQUEST_TIMEOUT } = require("./constants");
+        const userRequests = UserRequestUtils.updateUserRequest(ctx.chat.id);
+        if (userRequests > MAX_REQUESTS) {
+          ctx.reply(
+            `Spam detected, Try again after ${REQUEST_TIMEOUT / 60000} minutes`
+          );
+          return;
+        }
+
         await ctx.telegram.forwardMessage(
           TELEGRAM_RELEASE_CHAT,
           message.chat.id,
           message.message_id
         );
-        ctx.replyToMessage("Forwarded post in the group for aproval");
+        ctx.replyToMessage("Forwarded post in the group for approval");
         const updatedCtx = {
           ...ctx,
           chat: { ...ctx.chat, id: TELEGRAM_RELEASE_CHAT },
