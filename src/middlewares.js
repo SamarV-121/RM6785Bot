@@ -51,4 +51,20 @@ Middleware.replyToMessageMiddleware = async (ctx, next) => {
   return next();
 };
 
+/**
+ * Middleware to check if the message has data provided.
+ * @param {object} ctx - The context object containing information about the Telegram update.
+ * @param {function} next - The next function to call in the middleware chain.
+ * @returns {Promise<void>} - A promise that resolves once the middleware is executed.
+ */
+Middleware.checkDataMiddleware = async (ctx, next) => {
+  const msgText = ctx.message.text.split(" ");
+
+  if (!msgText[1]) {
+    return ctx.replyToMessage("No data is provided");
+  }
+
+  return next();
+};
+
 module.exports = Middleware;

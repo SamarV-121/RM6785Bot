@@ -49,6 +49,11 @@ handlerFiles.forEach((handlerFile) => {
     middlewares.push(Middleware.replyToMessageMiddleware);
   }
 
+  // Check if require_data middleware is required
+  if (handler.require_data) {
+    middlewares.push(Middleware.checkDataMiddleware);
+  }
+
   const commandHandler = Telegraf.compose([...middlewares, handler.execute]);
 
   // Split commands by "or" and register each command

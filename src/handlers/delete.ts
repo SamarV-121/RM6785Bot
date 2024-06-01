@@ -1,38 +1,30 @@
-import { Context, TelegramError } from "telegraf";
+import { Context } from "telegraf";
 import { Update } from "telegraf/types";
 const { TELEGRAM_RM6785_CHANNEL } = require("../constants.js");
 
 const deleteHandler = async (ctx: Context<Update>): Promise<void> => {
-  if (ctx.message === undefined) return;
-  if (!("text" in ctx.message)) return;
+  if (!ctx.message || !("text" in ctx.message)) return;
 
-  let msgText: String = ctx.message.text.replace(/^\/delete(@RM6785Bot)?/, "").trim();
-  let splitMsg: Array<String> = msgText.split("/");
-  if (splitMsg.length === 0) {
-    ctx.reply("Are you sure that's a valid link?");
-    return;
-  }
+  const msgUrl: string = ctx.message.text.split(" ")[1];
+  const msgId: number = parseInt(msgUrl.split("/").pop() || "", 10);
 
-  let msgToDeleteId: number = Number(splitMsg[splitMsg.length-1]);
-  // Number("") evaluates to 0 so check that as well
-  if (Number.isNaN(msgToDeleteId) || msgToDeleteId === 0) {
-    ctx.reply("Invalid message id, the link you provided is not a message link");
+  if (msgId <= 0) {
+    await (ctx as any).replyToMessage("Invalid message id");
     return;
   }
 
   try {
-    await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgToDeleteId);
+    await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgId);
     (ctx as any).replyToMessage("Requested message deleted");
   } catch (e: any) {
-    let err = e as TelegramError;
-    ctx.reply(`${err.name}\n${err.message}\n${err.description}`);
+    (ctx as any).replyToMessage(`Failed to delete message: ${e.message}`);
   }
 };
 
 module.exports = {
   command: "delete",
-  help: "Delete a message in the channel. Provide message id.",
+  help: "Delete a message in the channel. Provide message url.",
   auth: true,
-  reply_to_message: false,
+  require_data: true,
   execute: deleteHandler,
 };
