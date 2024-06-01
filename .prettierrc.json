@@ -11,7 +11,6 @@
   "tabWidth": 2,
   "trailingComma": "es5",
   "useTabs": false,
-  "parser": "flow",
   "overrides": [
     {
       "files": "*.json",
