@@ -1,41 +1,39 @@
-import { Context, Telegraf } from "telegraf";
 const UserRequestUtils = require("./utils/userRequestUtils");
 const { TELEGRAM_RELEASE_CHAT } = require("./utils/lintUtils");
 
-const setupAutoPostDetection = async (bot: Telegraf) => {
-  bot.on("text", async (ctx: Context) => {
-    const message = ctx.message!;
+const setupAutoPostDetection = async (bot) => {
+  bot.on("message", async (ctx) => {
+    const { message } = ctx;
     // Disable post auto detection in public groups
     if (message.chat.type === "supergroup" && message.chat.username) {
       return;
     }
 
-    // make TS stfu 💩
-    if (!('caption' in message)) return;
+    if (typeof message.caption === "undefined") return;
 
     // recovery is currently not supported by linter,
     // so let's not trigger the linter if # is recovery.
     if (
-      message.caption!.search("#ROM") !== -1 ||
-      message.caption!.search("#KERNEL") !== -1
+      message.caption.search("#ROM") !== -1 ||
+      message.caption.search("#KERNEL") !== -1
     ) {
-      (message.reply_to_message as any) = {
+      message.reply_to_message = {
         caption: message.caption,
         caption_entities: message.caption_entities,
       };
       if (message.chat.type === "private") {
         // eslint-disable-next-line global-require
         const [lintResult, lintSuccessful] = require("./utils/lintUtils")(
-          (message.reply_to_message as any).caption!,
-          (message.reply_to_message as any).caption_entities!
+          message.reply_to_message.caption,
+          message.reply_to_message.caption_entities
         );
         ctx.replyWithHTML(lintResult, {
-          reply_to_message_id: (ctx.message as any).reply_to_message.message_id,
+          reply_to_message_id: ctx.message.reply_to_message.message_id,
         });
         if (lintSuccessful) {
           // eslint-disable-next-line global-require
           const { MAX_REQUESTS, REQUEST_TIMEOUT } = require("./constants");
-          const userRequests = UserRequestUtils.updateUserRequest(ctx.chat!.id);
+          const userRequests = UserRequestUtils.updateUserRequest(ctx.chat.id);
           if (userRequests > MAX_REQUESTS) {
             ctx.reply(
               `Spam detected, Try again after ${
@@ -50,7 +48,7 @@ const setupAutoPostDetection = async (bot: Telegraf) => {
             message.chat.id,
             message.message_id
           );
-          (ctx as any).replyToMessage("Forwarded post in the group for approval");
+          ctx.replyToMessage("Forwarded post in the group for approval");
           const updatedCtx = {
             ...ctx,
             chat: { ...ctx.chat, id: TELEGRAM_RELEASE_CHAT },
