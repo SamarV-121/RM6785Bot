@@ -1,5 +1,4 @@
 import { Context, Telegraf } from "telegraf";
-import { Update, Message } from "telegraf/types";
 const UserRequestUtils = require("./utils/userRequestUtils");
 const { TELEGRAM_RELEASE_CHAT } = require("./utils/lintUtils");
 
