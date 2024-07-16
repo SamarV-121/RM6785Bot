@@ -1,5 +1,5 @@
 const UserRequestUtils = require("./utils/userRequestUtils");
-const { TELEGRAM_RELEASE_CHAT } = require("./utils/lintUtils");
+const { TELEGRAM_RELEASE_CHAT } = require("./constants");
 
 const setupAutoPostDetection = async (bot) => {
   bot.on("message", async (ctx) => {
