@@ -32,7 +32,7 @@ const lintTelegramPost = (text, entities) => {
     const RELEASE_TYPE = ["UNOFFICIAL", "OFFICIAL"];
     const BUILD_TYPE = ["ROM", "KERNEL", "RECOVERY"];
     const DEVICE = ["RM6785", "RMX2001", "RMX2151", "salaa"];
-    const ANDROID_VERSION = ["A10", "A11", "A12", "A13", "A14"];
+    const ANDROID_VERSION = ["A10", "A11", "A12", "A13", "A14", "A15", "A16"];
     const RUI_VERSION = ["RUI1", "RUI2", "RUI3"];
 
     if (hashtags.length === 0) {
@@ -58,7 +58,7 @@ const lintTelegramPost = (text, entities) => {
     }
 
     if (!KERNEL && !ANDROID_VERSION.includes(TAG_ANDROID_VER)) {
-      errorMessage += `• Incorrect Android version mentioned on the fifth hashtag. (A10/A11/A12/A13)\n`;
+      errorMessage += `• Incorrect Android version mentioned on the fifth hashtag. (A10/A11/A12/A13/A14/A15/A16)\n`;
     }
 
     if (!RUI_VERSION.includes(TAG_RUI_VER)) {
