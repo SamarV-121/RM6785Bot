@@ -31,7 +31,7 @@ const lintTelegramPost = (text, entities) => {
 
     const RELEASE_TYPE = ["UNOFFICIAL", "OFFICIAL"];
     const BUILD_TYPE = ["ROM", "KERNEL", "RECOVERY"];
-    const DEVICE = ["RM6785", "RMX2001", "RMX2151", "salaa"];
+    const DEVICE = ["RM6785", "RMX2001", "RMX2151", "salaa", "nemo"];
     const ANDROID_VERSION = ["A10", "A11", "A12", "A13", "A14", "A15", "A16"];
     const RUI_VERSION = ["RUI1", "RUI2", "RUI3"];
 
