@@ -1,16 +1,18 @@
-/* eslint-disable prefer-destructuring */
-/* eslint-disable prefer-const */
-/* eslint-disable no-unsafe-optional-chaining */
-const lintTelegramPost = (text, entities) => {
+import type { MessageEntity } from "telegraf/types";
+
+const lintTelegramPost = (
+  text: string,
+  entities: MessageEntity[]
+): [string, boolean] => {
   let KERNEL = false;
   let boldTitle = false;
   let boldNotes = false;
   let boldChangelog = false;
   let boldBugs = false;
   let boldDownloads = false;
-  let hashtags = [];
+  let hashtags: string[] = [];
 
-  const validateHashtags = () => {
+  const validateHashtags = (): string => {
     let errorMessage = "";
     hashtags = text.match(/#\w+/g)?.map((tag) => tag.slice(1)) || [];
     let [
@@ -25,7 +27,7 @@ const lintTelegramPost = (text, entities) => {
     if (TAG_BUILD === "KERNEL") {
       KERNEL = true;
       [TAG_DEVICE, TAG_RUI_VER] = [hashtags[2], hashtags[3]];
-    } else if (TAG_ANDROID_VER.includes("RMX")) {
+    } else if (TAG_ANDROID_VER?.includes("RMX")) {
       [TAG_ANDROID_VER, TAG_RUI_VER] = [hashtags[5], hashtags[6]];
     }
 
@@ -68,18 +70,15 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Hashtags:\n${errorMessage}` : "";
   };
 
-  const validateBold = () => {
-    // Notes may be omitted, in that case
-    // set it to true so we don't fail the test
+  const validateBold = (): string => {
     if (!text.includes("Notes")) {
       boldNotes = true;
     }
 
     const boldEntities = entities.filter((entity) => entity.type === "bold");
 
-    let word;
     boldEntities.forEach((entity) => {
-      word = text.substring(entity.offset, entity.offset + entity.length);
+      const word = text.substring(entity.offset, entity.offset + entity.length);
       if (word.includes("Notes")) boldNotes = true;
       else if (word.includes("Changelog")) boldChangelog = true;
       else if (word.includes("Bugs")) boldBugs = true;
@@ -98,7 +97,7 @@ const lintTelegramPost = (text, entities) => {
     return "";
   };
 
-  const validateTitle = () => {
+  const validateTitle = (): string => {
     const validTitles = [
       "for Realme 6/6i(Indian)/6s/7/Narzo/Narzo 20 Pro/Narzo 30 4G",
       "for Realme 6/6i(Indian)/6s/Narzo ONLY",
@@ -121,9 +120,9 @@ const lintTelegramPost = (text, entities) => {
       )
       .match(/\n/g);
 
-    let title;
+    let title: string | null;
     try {
-      title = text.match(/.*\w+(?= +for).*/)[0];
+      title = text.match(/.*\w+(?= +for).*/)?.[0] ?? null;
     } catch (TypeError) {
       title = null;
     }
@@ -140,7 +139,7 @@ const lintTelegramPost = (text, entities) => {
       errorMessage += "• Missing bold format on title\n";
     }
 
-    if (!validTitles.some((aValidTitle) => title.includes(aValidTitle))) {
+    if (!validTitles.some((aValidTitle) => title!.includes(aValidTitle))) {
       errorMessage += "• Missing or incorrect order of device in title.\n";
     }
 
@@ -152,9 +151,9 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Title:\n${errorMessage}` : "";
   };
 
-  const validateBuildInfo = () => {
+  const validateBuildInfo = (): string => {
     let errorMessage = "";
-    let type;
+    let type: string;
     if (KERNEL) {
       type = "Kernel";
     } else {
@@ -189,7 +188,7 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Build info:\n${errorMessage}` : "";
   };
 
-  const validateChangelogBugs = () => {
+  const validateChangelogBugs = (): string => {
     let errorMessage = "";
     const matchPattern =
       "\n\nChangelog\n(.+\n)+\nBugs\n(.+\n)+(\nNotes\n(.+\n)+)?";
@@ -201,7 +200,7 @@ const lintTelegramPost = (text, entities) => {
     if (!text.match(new RegExp(matchPattern))) {
       errorMessage += "• Incorrect case.\n";
     } else {
-      let checks = [
+      const checks = [
         {
           condition: !boldChangelog,
           errorText: "Missing bold format on Changelog",
@@ -232,7 +231,7 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Changelog/Bugs:\n${errorMessage}` : "";
   };
 
-  const validateDownloads = () => {
+  const validateDownloads = (): string => {
     let errorMessage = "";
     let matchPattern =
       "\n\nDownloads\n• Build type:(.+)?\n• File size:(.+)?\n• Download\n";
@@ -262,9 +261,9 @@ const lintTelegramPost = (text, entities) => {
     return errorMessage ? `Downloads:\n${errorMessage}` : "";
   };
 
-  const validateFooter = () => {
+  const validateFooter = (): string => {
     let errorMessage = "";
-    let matchPattern;
+    let matchPattern: string;
     if (KERNEL) {
       matchPattern = "\nSources\nSupport group";
     } else {
@@ -298,4 +297,4 @@ ${validateFooter()}`;
   return [lintResult, lintStatus];
 };
 
-module.exports = lintTelegramPost;
+export default lintTelegramPost;

@@ -1,2 +1,2 @@
-# These are compiled by tsc; they are not meant to be commited
+# Previously compiled by tsc; no longer needed after TS migration
 delete.js

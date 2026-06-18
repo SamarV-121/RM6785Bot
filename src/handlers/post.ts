@@ -1,21 +1,31 @@
-const { messageInfo, MessageUtils } = require("../utils/messageUtils");
-const {
+import type { Context } from "telegraf";
+import { messageInfo, hasEnoughVotes, currentVotes } from "../utils/messageUtils.js";
+import {
   POST_TIMEOUT,
   MAX_VOTES,
   TELEGRAM_STICKER_FILE_ID,
   TELEGRAM_RM6785_CHANNEL,
   TELEGRAM_RM6785_CHAT,
   TELEGRAM_R7_CHAT,
-} = require("../constants");
+} from "../constants.js";
+import type { HandlerDescriptor } from "../types.js";
 
-const postHandler = async (ctx) => {
+const postHandler = async (ctx: Context) => {
+  if (
+    !ctx.message ||
+    !("reply_to_message" in ctx.message) ||
+    !ctx.message.reply_to_message ||
+    !("text" in ctx.message)
+  )
+    return;
+
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
-  const votes = MessageUtils.currentVotes(messageId);
+  const votes = currentVotes(messageId);
   const timeoutMatch = ctx.message.text?.match(/\/post (\d+)m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
-    const timeoutInMinutes = timeoutMatch[1];
+    const timeoutInMinutes = parseInt(timeoutMatch[1]);
     timeoutInMs = timeoutInMinutes * 60000;
   }
 
@@ -25,13 +35,13 @@ const postHandler = async (ctx) => {
 
   const msg = messageInfo[messageId];
 
-  if (messageInfo[messageId] && messageInfo[messageId].isPosted) {
-    ctx.replyToMessage("This message has already been scheduled for posting.");
+  if (messageInfo[messageId]?.isPosted) {
+    await ctx.replyToMessage("This message has already been scheduled for posting.");
     return;
   }
 
-  if (!MessageUtils.hasEnoughVotes(messageId)) {
-    ctx.replyToMessage(
+  if (!hasEnoughVotes(messageId)) {
+    await ctx.replyToMessage(
       `This message does not have enough approvals (${votes}/${MAX_VOTES})`
     );
     return;
@@ -59,7 +69,7 @@ const postHandler = async (ctx) => {
         await ctx.telegram.editMessageText(
           chatId,
           sentMessageId,
-          null,
+          undefined,
           `Scheduled to post in ${Math.floor(secondsLeft / 60)}m ${
             secondsLeft % 60
           }s`
@@ -78,12 +88,12 @@ const postHandler = async (ctx) => {
         await ctx.telegram.editMessageText(
           chatId,
           sentMessageId,
-          null,
+          undefined,
           "Posted successfully!"
         );
 
         try {
-          const forwardAndPin = async (fromChat, toChat) => {
+          const forwardAndPin = async (fromChat: number, toChat: number) => {
             const forwardedMsg = await ctx.telegram.forwardMessage(
               toChat,
               fromChat,
@@ -111,10 +121,12 @@ const postHandler = async (ctx) => {
   }
 };
 
-module.exports = {
+const handler: HandlerDescriptor = {
   command: "post",
   help: "Publish an approved message on the channel.",
   auth: true,
   reply_to_message: true,
   execute: postHandler,
 };
+
+export default handler;
