@@ -13,8 +13,11 @@ export const messageInfo: Record<number, MessageInfo> = {};
 export const hasUserVoted = (messageId: number, userId: number): boolean =>
   messageInfo[messageId]?.[userId] === true;
 
-export const currentVotes = (messageId: number): number =>
-  messageInfo[messageId] ? Object.keys(messageInfo[messageId]).length : 0;
+export const currentVotes = (messageId: number): number => {
+  const info = messageInfo[messageId];
+  if (!info) return 0;
+  return Object.keys(info).filter((k) => /^\d+$/.test(k)).length;
+};
 
 export const hasEnoughVotes = (messageId: number): boolean => {
   const votes = currentVotes(messageId);

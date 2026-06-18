@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { Octokit } from "@octokit/rest";
 import { bot } from "./index.js";
 import { GH_REPO_TOKEN } from "./config.js";
@@ -29,7 +29,11 @@ const restartBot = async () => {
       { parse_mode: "HTML" }
     );
 
-    execSync("bun run src/index.ts -- --ci", { stdio: "inherit" });
+    const child = spawn("bun", ["run", "src/index.ts", "--", "--ci"], {
+      stdio: "inherit",
+      detached: true,
+    });
+    child.unref();
     process.exit(0);
   } catch (error) {
     const err = error as Error;

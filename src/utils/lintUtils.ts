@@ -123,7 +123,7 @@ const lintTelegramPost = (
     let title: string | null;
     try {
       title = text.match(/.*\w+(?= +for).*/)?.[0] ?? null;
-    } catch (TypeError) {
+    } catch {
       title = null;
     }
 

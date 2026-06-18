@@ -63,13 +63,8 @@ export const addAuthorizedUser = async (user: {
     name: user.username || `${user.first_name} ${user.last_name || ""}`,
   });
 
-  try {
-    await uploadAuthorizedUsers(authorizedUsers);
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  const uploadResult = await uploadAuthorizedUsers(authorizedUsers);
+  return uploadResult !== false;
 };
 
 export const removeAuthorizedUser = async (
@@ -85,13 +80,8 @@ export const removeAuthorizedUser = async (
 
   authorizedUsers.splice(index, 1);
 
-  try {
-    await uploadAuthorizedUsers(authorizedUsers);
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  const uploadResult = await uploadAuthorizedUsers(authorizedUsers);
+  return uploadResult !== false;
 };
 
 export const isAuthorized = async (userId: number): Promise<boolean> => {

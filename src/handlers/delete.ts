@@ -6,9 +6,13 @@ const deleteHandler = async (ctx: Context): Promise<void> => {
   if (!ctx.message || !("text" in ctx.message)) return;
 
   const msgUrl = ctx.message.text.split(" ")[1];
+  if (!msgUrl) {
+    await ctx.replyToMessage("Please provide a message URL.");
+    return;
+  }
   const msgId = parseInt(msgUrl.split("/").pop() || "", 10);
 
-  if (msgId <= 0) {
+  if (isNaN(msgId) || msgId <= 0) {
     await ctx.replyToMessage("Invalid message id");
     return;
   }

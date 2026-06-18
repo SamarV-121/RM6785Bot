@@ -7,10 +7,8 @@ const voteHandler = async (ctx: Context) => {
   if (!ctx.message || !("from" in ctx.message)) return;
 
   const userId = ctx.message.from.id;
-  const messageId =
-    ("reply_to_message" in ctx.message && ctx.message.reply_to_message
-      ? ctx.message.reply_to_message.message_id
-      : ctx.message.message_id);
+  if (!("reply_to_message" in ctx.message) || !ctx.message.reply_to_message) return;
+  const messageId = ctx.message.reply_to_message.message_id;
 
   if (hasUserVoted(messageId, userId)) {
     await ctx.replyToMessage(`User ${userId} has already voted for this message.`);

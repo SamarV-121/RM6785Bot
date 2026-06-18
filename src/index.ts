@@ -29,7 +29,7 @@ bot.context.replyToMessage = async function (this: any, replyText: string) {
 };
 
 const handlerFiles = readdirSync(`${__dirname}/handlers`).filter((file) =>
-  file.endsWith(".ts")
+  file.endsWith(".ts") || file.endsWith(".js")
 );
 
 export const registeredCommands: RegisteredCommand[] = [];

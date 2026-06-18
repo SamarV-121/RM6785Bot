@@ -17,21 +17,22 @@ const cancelHandler = async (ctx: Context) => {
   if (msg?.stickerMessageId) {
     clearTimeout(msg.timeoutId as ReturnType<typeof setTimeout>);
 
-    ctx.telegram
-      .deleteMessage(TELEGRAM_RM6785_CHANNEL, msg.stickerMessageId)
-      .then(() => {
-        msg.isPosted = false;
-        msg.stickerMessageId = null;
-        msg.sentMessageId = null;
-        msg.timeoutId = null;
+    try {
+      await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msg.stickerMessageId);
+      msg.isPosted = false;
+      msg.stickerMessageId = null;
+      msg.sentMessageId = null;
+      msg.timeoutId = null;
 
-        ctx.replyToMessage("Successfully cancelled the scheduled post.", {
-          reply_to_message_id: messageId,
-        } as Parameters<typeof ctx.replyToMessage>[1]);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      await ctx.replyToMessage("Successfully cancelled the scheduled post.", {
+        reply_to_message_id: messageId,
+      } as Parameters<typeof ctx.replyToMessage>[1]);
+    } catch (error) {
+      console.error(error);
+      await ctx.replyToMessage("Failed to cancel the scheduled post.", {
+        reply_to_message_id: messageId,
+      } as Parameters<typeof ctx.replyToMessage>[1]);
+    }
   } else {
     await ctx.replyToMessage("No scheduled post found to cancel.", {
       reply_to_message_id: messageId,

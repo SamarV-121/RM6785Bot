@@ -35,7 +35,7 @@ const postHandler = async (ctx: Context) => {
 
   const msg = messageInfo[messageId];
 
-  if (messageInfo[messageId]?.isPosted) {
+  if (msg.isPosted) {
     await ctx.replyToMessage("This message has already been scheduled for posting.");
     return;
   }
