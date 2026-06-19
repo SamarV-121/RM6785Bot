@@ -11,10 +11,7 @@ import lintHandler from "./handlers/lint";
 import type { BotContext } from "./types";
 import { replyToMessage } from "./utils/contextUtils";
 
-const setupAutoPostDetection = (
-  bot: TelegramBot,
-  botInfo: { id: number }
-) => {
+const setupAutoPostDetection = (bot: TelegramBot, botInfo: { id: number }) => {
   bot.on("message", async (msg) => {
     if (
       msg.chat.type === "supergroup" &&
@@ -70,10 +67,7 @@ const setupAutoPostDetection = (
             msg.chat.id,
             msg.message_id
           );
-          await replyToMessage(
-            ctx,
-            "Forwarded post in the group for approval"
-          );
+          await replyToMessage(ctx, "Forwarded post in the group for approval");
           const updatedCtx: BotContext = {
             ...ctx,
             message: {

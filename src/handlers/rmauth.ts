@@ -17,10 +17,7 @@ const rmauthHandler = async (ctx: BotContext) => {
       `@${user.username || user.first_name} has been removed from the authorized users.`
     );
   } else {
-    await replyToMessage(
-      ctx,
-      "This user is not in the authorized users list."
-    );
+    await replyToMessage(ctx, "This user is not in the authorized users list.");
   }
 };
 

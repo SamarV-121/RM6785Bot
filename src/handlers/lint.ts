@@ -23,7 +23,7 @@ const lintHandler = async (ctx: BotContext) => {
     replyMsg.caption,
     "caption_entities" in replyMsg
       ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (replyMsg as any).caption_entities ?? []
+        ((replyMsg as any).caption_entities ?? [])
       : []
   );
 

@@ -38,10 +38,7 @@ const restartBot = async () => {
   } catch (error) {
     const err = error as Error;
     console.error(`Failed to restart bot: ${err.message}`);
-    await bot.sendMessage(
-      chatId,
-      `Failed to restart bot: ${err.message}`
-    );
+    await bot.sendMessage(chatId, `Failed to restart bot: ${err.message}`);
   }
 };
 
