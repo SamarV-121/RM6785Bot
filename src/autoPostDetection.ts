@@ -46,10 +46,13 @@ const setupAutoPostDetection = (bot: TelegramBot, botInfo: { id: number }) => {
           replyMsg.caption!,
           (replyMsg as any).caption_entities ?? []
         );
-        await bot.sendMessage(msg.chat.id, lintResult, {
-          parse_mode: "HTML",
-          reply_parameters: { message_id: msg.message_id },
-        });
+        await bot.sendRichMessage(
+          msg.chat.id,
+          { markdown: lintResult },
+          {
+            reply_parameters: { message_id: msg.message_id },
+          }
+        );
         if (lintSuccessful) {
           const userRequests = updateUserRequest(msg.chat.id);
           if (userRequests > MAX_REQUESTS) {
