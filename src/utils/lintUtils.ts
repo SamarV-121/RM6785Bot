@@ -38,33 +38,33 @@ const lintTelegramPost = (
     const RUI_VERSION = ["RUI1", "RUI2", "RUI3"];
 
     if (hashtags.length === 0) {
-      return "Hashtags:\n• No hashtags were found.";
+      return "Hashtags:\n- No hashtags were found.";
     }
 
     if (!BUILD_TYPE.includes(TAG_BUILD)) {
       errorMessage +=
-        "• Incorrect build type mentioned on the second hashtag. (ROM/KERNEL/RECOVERY)\n";
+        "- Incorrect build type mentioned on the second hashtag. (ROM/KERNEL/RECOVERY)\n";
     }
 
     if (!KERNEL && !RELEASE_TYPE.includes(TAG_RELEASE_TYPE)) {
       errorMessage +=
-        "• Incorrect release type mentioned on the third hashtag. (OFFICIAL/UNOFFICIAL)\n";
+        "- Incorrect release type mentioned on the third hashtag. (OFFICIAL/UNOFFICIAL)\n";
     }
 
     if (!DEVICE.includes(TAG_DEVICE)) {
       if (KERNEL) {
-        errorMessage += `• Incorrect device mentioned on the third hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
+        errorMessage += `- Incorrect device mentioned on the third hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
       } else {
-        errorMessage += `• Incorrect device mentioned on the fourth hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
+        errorMessage += `- Incorrect device mentioned on the fourth hashtag. (RM6785/RMX2001/RMX2151/salaa)\n`;
       }
     }
 
     if (!KERNEL && !ANDROID_VERSION.includes(TAG_ANDROID_VER)) {
-      errorMessage += `• Incorrect Android version mentioned on the fifth hashtag. (A10/A11/A12/A13/A14/A15/A16)\n`;
+      errorMessage += `- Incorrect Android version mentioned on the fifth hashtag. (A10/A11/A12/A13/A14/A15/A16)\n`;
     }
 
     if (!RUI_VERSION.includes(TAG_RUI_VER)) {
-      errorMessage += `• Incorrect RealmeUI version mentioned on the last hashtag. (RUI1/RUI2/RUI3)\n`;
+      errorMessage += `- Incorrect RealmeUI version mentioned on the last hashtag. (RUI1/RUI2/RUI3)\n`;
     }
 
     return errorMessage ? `Hashtags:\n${errorMessage}` : "";
@@ -128,27 +128,27 @@ const lintTelegramPost = (
     }
 
     if (!title) {
-      return "Title:\n• No title found.";
+      return "Title:\n- No title found.";
     }
 
     if (titleNewlines?.length !== 2) {
-      errorMessage += "• Missing two newlines before the title\n";
+      errorMessage += "- Missing two newlines before the title\n";
     }
 
     if (!boldTitle) {
-      errorMessage += "• Missing bold format on title\n";
+      errorMessage += "- Missing bold format on title\n";
     }
 
     if (!validTitles.some((aValidTitle) => title!.includes(aValidTitle))) {
-      errorMessage += "• Missing or incorrect order of device in title.\n";
+      errorMessage += "- Missing or incorrect order of device in title.\n";
     }
 
     if (!title.match(/\[([^\]]+)\]$/)) {
       errorMessage +=
-        "• Missing build's stability stage. (ALPHA/BETA/STABLE)\n";
+        "- Missing build's stability stage. (ALPHA/BETA/STABLE)\n";
     }
 
-    return errorMessage ? `Title:\n${errorMessage}` : "";
+    return errorMessage ? `\n## Title:\n${errorMessage}` : "";
   };
 
   const validateBuildInfo = (): string => {
@@ -162,19 +162,19 @@ const lintTelegramPost = (
 
     const infoPattern = `(.+)\n• Author:(.+)?\n• ${type} version:(.+)?\n• Build date:(.+)?`;
     if (!text.match(new RegExp(infoPattern, "i"))) {
-      return "Build info:\n• Invalid build info section";
+      return "\n## Build info:\n- Invalid build info section.\n";
     }
 
     if (!text.match(new RegExp(infoPattern))) {
-      errorMessage += "• Incorrect case\n";
+      errorMessage += "- Incorrect case\n";
     }
 
     if (!text.match(/(.+)\n• Author: (.+)/)) {
-      errorMessage += "• Invalid author info\n";
+      errorMessage += "- Invalid author info\n";
     }
 
     if (!text.match(new RegExp(`\n• ${type} version: (.+)`))) {
-      errorMessage += `• Invalid ${type} version info\n`;
+      errorMessage += `- Invalid ${type} version info\n`;
     }
 
     if (
@@ -182,10 +182,10 @@ const lintTelegramPost = (
         /\n• Build date: (0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-\d{4}/
       )
     ) {
-      errorMessage += "• Invalid build date info (Required format: DD-MM-YY)\n";
+      errorMessage += "- Invalid build date info (Required format: DD-MM-YY)\n";
     }
 
-    return errorMessage ? `Build info:\n${errorMessage}` : "";
+    return errorMessage ? `\n## Build info:\n${errorMessage}` : "";
   };
 
   const validateChangelogBugs = (): string => {
@@ -194,11 +194,11 @@ const lintTelegramPost = (
       "\n\nChangelog\n(.+\n)+\nBugs\n(.+\n)+(\nNotes\n(.+\n)+)?";
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
-      return "Changelog/Bugs:\n• Invalid Changelog/Bugs section.";
+      return "Changelog/Bugs:\n- Invalid Changelog/Bugs section.";
     }
 
     if (!text.match(new RegExp(matchPattern))) {
-      errorMessage += "• Incorrect case.\n";
+      errorMessage += "- Incorrect case.\n";
     } else {
       const checks = [
         {
@@ -215,20 +215,20 @@ const lintTelegramPost = (
     }
 
     if (!text.match(/\n\nChangelog\n•/)) {
-      errorMessage += "• Invalid Changelog section.\n";
+      errorMessage += "- Invalid Changelog section.\n";
     }
 
     if (!text.match(/\nBugs\n•/)) {
-      errorMessage += "• Invalid Bugs section.\n";
+      errorMessage += "- Invalid Bugs section.\n";
     }
 
     if (text.match(/\nNote/i)) {
       if (!text.match(/\nNotes\n•/)) {
-        errorMessage += "• Invalid notes section.\n";
+        errorMessage += "- Invalid notes section.\n";
       }
     }
 
-    return errorMessage ? `Changelog/Bugs:\n${errorMessage}` : "";
+    return errorMessage ? `\n## Changelog/Bugs:\n${errorMessage}` : "";
   };
 
   const validateDownloads = (): string => {
@@ -241,24 +241,24 @@ const lintTelegramPost = (
     }
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
-      return "Downloads:\n• Invalid Downloads section.";
+      return "\n## Downloads:\n- Invalid Downloads section.\n";
     }
 
     if (!text.match(new RegExp(matchPattern))) {
-      errorMessage += "• Incorrect case.\n";
+      errorMessage += "- Incorrect case.\n";
     } else if (!boldDownloads) {
-      errorMessage += "• Missing bold format on Downloads.\n";
+      errorMessage += "- Missing bold format on Downloads.\n";
     }
 
     if (!KERNEL && !text.match(/(.+)\n• Build type: (.+)/)) {
-      errorMessage += "• Invalid build type\n";
+      errorMessage += "- Invalid build type\n";
     }
 
     if (!text.match(/(.+)\n• File size: (.+)/)) {
-      errorMessage += "• Invalid file size\n";
+      errorMessage += "- Invalid file size\n";
     }
 
-    return errorMessage ? `Downloads:\n${errorMessage}` : "";
+    return errorMessage ? `\n## Downloads:\n${errorMessage}` : "";
   };
 
   const validateFooter = (): string => {
@@ -272,17 +272,17 @@ const lintTelegramPost = (
 
     if (!text.match(new RegExp(matchPattern, "i"))) {
       return (
-        `Footer:\n• Invalid footer section.` +
+        `Footer:\n- Invalid footer section.` +
         `\n  Should be written exactly like this:${matchPattern}`
       );
     }
 
     if (!text.match(new RegExp(matchPattern))) {
-      errorMessage += "• Incorrect case.\n";
-      errorMessage += `Correct usage:${matchPattern}`;
+      errorMessage += "- Incorrect case.\n";
+      errorMessage += `  Correct usage:${matchPattern}`;
     }
 
-    return errorMessage ? `Footer:\n${errorMessage}` : "";
+    return errorMessage ? `\n## Footer:\n${errorMessage}` : "";
   };
 
   const errors = `\n${validateHashtags()}${validateBold()}${validateTitle()}
@@ -291,8 +291,8 @@ ${validateFooter()}`;
 
   const lintStatus = !errors.trim();
   const lintResult = lintStatus
-    ? "Seems good 🤌\nBot approves"
-    : `<b>ERRORS</b>\n${errors}`;
+    ? "# Seems good 🤌\nBot approves"
+    : `# ERRORS\n${errors}`;
 
   return [lintResult, lintStatus];
 };

@@ -8,11 +8,13 @@ const lintHandler = async (ctx: BotContext) => {
   const replyMsg = ctx.message.reply_to_message;
 
   if (!("caption" in replyMsg) || !replyMsg.caption) {
-    await ctx.bot.sendMessage(
+    await ctx.bot.sendRichMessage(
       ctx.message.chat.id,
-      "<b>ERROR:</b> No ROM banner was found. Please provide a banner for the ROM.",
       {
-        parse_mode: "HTML",
+        markdown:
+          "# ERROR: No ROM banner was found. Please provide a banner for the ROM.",
+      },
+      {
         reply_parameters: { message_id: replyMsg.message_id },
       }
     );
@@ -27,10 +29,13 @@ const lintHandler = async (ctx: BotContext) => {
       : []
   );
 
-  await ctx.bot.sendMessage(ctx.message.chat.id, lintResult, {
-    parse_mode: "HTML",
-    reply_parameters: { message_id: replyMsg.message_id },
-  });
+  await ctx.bot.sendRichMessage(
+    ctx.message.chat.id,
+    { markdown: lintResult },
+    {
+      reply_parameters: { message_id: replyMsg.message_id },
+    }
+  );
 
   if (lintSuccessful) {
     const voteCommandCtx: BotContext = {
