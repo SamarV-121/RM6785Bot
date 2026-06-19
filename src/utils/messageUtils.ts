@@ -1,4 +1,4 @@
-import { MAX_VOTES } from "../constants.js";
+import { MAX_VOTES } from "../constants";
 
 export interface MessageInfo {
   [userId: number]: boolean;

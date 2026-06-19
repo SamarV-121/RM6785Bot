@@ -1,44 +1,63 @@
-import type { Telegraf, Context } from "telegraf";
-import { updateUserRequest } from "./utils/userRequestUtils.js";
-import { TELEGRAM_RELEASE_CHAT, MAX_REQUESTS, REQUEST_TIMEOUT } from "./constants.js";
-import lintTelegramPost from "./utils/lintUtils.js";
-import lsauthHandler from "./handlers/lsauth.js";
-import lintHandler from "./handlers/lint.js";
+import type TelegramBot from "node-telegram-bot-api";
+import { updateUserRequest } from "./utils/userRequestUtils";
+import {
+  TELEGRAM_RELEASE_CHAT,
+  MAX_REQUESTS,
+  REQUEST_TIMEOUT,
+} from "./constants";
+import lintTelegramPost from "./utils/lintUtils";
+import lsauthHandler from "./handlers/lsauth";
+import lintHandler from "./handlers/lint";
+import type { BotContext } from "./types";
+import { replyToMessage } from "./utils/contextUtils";
 
-const setupAutoPostDetection = (bot: Telegraf<Context>) => {
-  bot.on("message", async (ctx) => {
-    const { message } = ctx;
-    if ("chat" in message && message.chat.type === "supergroup" && "username" in message.chat && message.chat.username) {
+const setupAutoPostDetection = (
+  bot: TelegramBot,
+  botInfo: { id: number }
+) => {
+  bot.on("message", async (msg) => {
+    if (
+      msg.chat.type === "supergroup" &&
+      "username" in msg.chat &&
+      msg.chat.username
+    ) {
       return;
     }
 
-    if (!("caption" in message) || typeof message.caption === "undefined") return;
+    if (!msg.caption) return;
 
     if (
-      message.caption.search("#ROM") !== -1 ||
-      message.caption.search("#KERNEL") !== -1
+      msg.caption.search("#ROM") !== -1 ||
+      msg.caption.search("#KERNEL") !== -1
     ) {
-      message.reply_to_message = {
-        message_id: message.message_id,
-        date: message.date,
-        chat: message.chat,
-        caption: message.caption,
-        caption_entities: message.caption_entities,
-      } as any;
+      const replyMsg = {
+        message_id: msg.message_id,
+        date: msg.date,
+        chat: msg.chat,
+        caption: msg.caption,
+        caption_entities: msg.caption_entities,
+      };
 
-      if (message.chat.type === "private") {
-        const replyMsg = message.reply_to_message as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      msg.reply_to_message = replyMsg as any;
+
+      const ctx: BotContext = { bot, botInfo, message: msg };
+
+      if (msg.chat.type === "private") {
         const [lintResult, lintSuccessful] = lintTelegramPost(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           replyMsg.caption!,
-          replyMsg.caption_entities ?? []
+          (replyMsg as any).caption_entities ?? []
         );
-        await ctx.replyWithHTML(lintResult, {
-          reply_to_message_id: message.message_id,
-        } as any);
+        await bot.sendMessage(msg.chat.id, lintResult, {
+          parse_mode: "HTML",
+          reply_parameters: { message_id: msg.message_id },
+        });
         if (lintSuccessful) {
-          const userRequests = updateUserRequest(ctx.chat!.id);
+          const userRequests = updateUserRequest(msg.chat.id);
           if (userRequests > MAX_REQUESTS) {
-            await ctx.reply(
+            await bot.sendMessage(
+              msg.chat.id,
               `Spam detected, Try again after ${
                 REQUEST_TIMEOUT / 60000
               } minutes`
@@ -46,27 +65,33 @@ const setupAutoPostDetection = (bot: Telegraf<Context>) => {
             return;
           }
 
-          await ctx.telegram.forwardMessage(
+          await bot.forwardMessage(
             TELEGRAM_RELEASE_CHAT,
-            message.chat.id,
-            message.message_id
+            msg.chat.id,
+            msg.message_id
           );
-          await ctx.replyToMessage("Forwarded post in the group for approval");
-          const updatedCtx = {
+          await replyToMessage(
+            ctx,
+            "Forwarded post in the group for approval"
+          );
+          const updatedCtx: BotContext = {
             ...ctx,
-            chat: { ...ctx.chat, id: TELEGRAM_RELEASE_CHAT },
-          } as Context;
+            message: {
+              ...msg,
+              chat: { ...msg.chat, id: TELEGRAM_RELEASE_CHAT },
+            },
+          };
 
           await lsauthHandler.execute(updatedCtx);
         }
       } else {
-        const lintCtx = {
+        const lintCtx: BotContext = {
           ...ctx,
           message: {
-            ...ctx.message,
-            reply_to_message: message.reply_to_message,
+            ...msg,
+            reply_to_message: msg.reply_to_message,
           },
-        } as Context;
+        };
         await lintHandler.execute(lintCtx);
       }
     }

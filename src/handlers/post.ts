@@ -1,5 +1,9 @@
-import type { Context } from "telegraf";
-import { messageInfo, hasEnoughVotes, currentVotes } from "../utils/messageUtils.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import {
+  messageInfo,
+  hasEnoughVotes,
+  currentVotes,
+} from "../utils/messageUtils";
 import {
   POST_TIMEOUT,
   MAX_VOTES,
@@ -7,17 +11,11 @@ import {
   TELEGRAM_RM6785_CHANNEL,
   TELEGRAM_RM6785_CHAT,
   TELEGRAM_R7_CHAT,
-} from "../constants.js";
-import type { HandlerDescriptor } from "../types.js";
+} from "../constants";
+import { replyToMessage } from "../utils/contextUtils";
 
-const postHandler = async (ctx: Context) => {
-  if (
-    !ctx.message ||
-    !("reply_to_message" in ctx.message) ||
-    !ctx.message.reply_to_message ||
-    !("text" in ctx.message)
-  )
-    return;
+const postHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message || !ctx.message.text) return;
 
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
@@ -36,12 +34,16 @@ const postHandler = async (ctx: Context) => {
   const msg = messageInfo[messageId];
 
   if (msg.isPosted) {
-    await ctx.replyToMessage("This message has already been scheduled for posting.");
+    await replyToMessage(
+      ctx,
+      "This message has already been scheduled for posting."
+    );
     return;
   }
 
   if (!hasEnoughVotes(messageId)) {
-    await ctx.replyToMessage(
+    await replyToMessage(
+      ctx,
       `This message does not have enough approvals (${votes}/${MAX_VOTES})`
     );
     return;
@@ -50,14 +52,15 @@ const postHandler = async (ctx: Context) => {
   msg.isPosted = true;
 
   try {
-    const sentSticker = await ctx.telegram.sendSticker(
+    const sentSticker = await ctx.bot.sendSticker(
       TELEGRAM_RM6785_CHANNEL,
       TELEGRAM_STICKER_FILE_ID
     );
 
     msg.stickerMessageId = sentSticker.message_id;
 
-    const sentMessage = await ctx.replyToMessage(
+    const sentMessage = await replyToMessage(
+      ctx,
       `Scheduled to post in ${timeoutInMs / 60000}m`
     );
     const sentMessageId = sentMessage.message_id;
@@ -66,18 +69,19 @@ const postHandler = async (ctx: Context) => {
 
     const countdownTimeout = async () => {
       if (secondsLeft % 5 === 0) {
-        await ctx.telegram.editMessageText(
-          chatId,
-          sentMessageId,
-          undefined,
+        await ctx.bot.editMessageText(
           `Scheduled to post in ${Math.floor(secondsLeft / 60)}m ${
             secondsLeft % 60
-          }s`
+          }s`,
+          {
+            chat_id: chatId,
+            message_id: sentMessageId,
+          }
         );
       }
 
       if (secondsLeft <= 0) {
-        const copiedMessage = await ctx.telegram.copyMessage(
+        const copiedMessage = await ctx.bot.copyMessage(
           TELEGRAM_RM6785_CHANNEL,
           chatId,
           messageId
@@ -85,21 +89,19 @@ const postHandler = async (ctx: Context) => {
 
         msg.isPosted = false;
 
-        await ctx.telegram.editMessageText(
-          chatId,
-          sentMessageId,
-          undefined,
-          "Posted successfully!"
-        );
+        await ctx.bot.editMessageText("Posted successfully!", {
+          chat_id: chatId,
+          message_id: sentMessageId,
+        });
 
         try {
           const forwardAndPin = async (fromChat: number, toChat: number) => {
-            const forwardedMsg = await ctx.telegram.forwardMessage(
+            const forwardedMsg = await ctx.bot.forwardMessage(
               toChat,
               fromChat,
               copiedMessage.message_id
             );
-            await ctx.telegram.pinChatMessage(toChat, forwardedMsg.message_id);
+            await ctx.bot.pinChatMessage(toChat, forwardedMsg.message_id);
           };
 
           await forwardAndPin(TELEGRAM_RM6785_CHANNEL, TELEGRAM_RM6785_CHAT);

@@ -1,4 +1,4 @@
-import { REQUEST_TIMEOUT } from "../constants.js";
+import { REQUEST_TIMEOUT } from "../constants";
 
 const trackUserRequests = new Map<number, number>();
 

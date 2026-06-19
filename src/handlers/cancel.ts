@@ -1,15 +1,10 @@
-import type { Context } from "telegraf";
-import { TELEGRAM_RM6785_CHANNEL } from "../constants.js";
-import { messageInfo } from "../utils/messageUtils.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import { TELEGRAM_RM6785_CHANNEL } from "../constants";
+import { messageInfo } from "../utils/messageUtils";
+import { replyToMessage } from "../utils/contextUtils";
 
-const cancelHandler = async (ctx: Context) => {
-  if (
-    !ctx.message ||
-    !("reply_to_message" in ctx.message) ||
-    !ctx.message.reply_to_message
-  )
-    return;
+const cancelHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message) return;
 
   const messageId = ctx.message.reply_to_message.message_id;
   const msg = messageInfo[messageId];
@@ -18,25 +13,22 @@ const cancelHandler = async (ctx: Context) => {
     clearTimeout(msg.timeoutId as ReturnType<typeof setTimeout>);
 
     try {
-      await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msg.stickerMessageId);
+      await ctx.bot.deleteMessage(
+        TELEGRAM_RM6785_CHANNEL,
+        msg.stickerMessageId
+      );
       msg.isPosted = false;
       msg.stickerMessageId = null;
       msg.sentMessageId = null;
       msg.timeoutId = null;
 
-      await ctx.replyToMessage("Successfully cancelled the scheduled post.", {
-        reply_to_message_id: messageId,
-      } as Parameters<typeof ctx.replyToMessage>[1]);
+      await replyToMessage(ctx, "Successfully cancelled the scheduled post.");
     } catch (error) {
       console.error(error);
-      await ctx.replyToMessage("Failed to cancel the scheduled post.", {
-        reply_to_message_id: messageId,
-      } as Parameters<typeof ctx.replyToMessage>[1]);
+      await replyToMessage(ctx, "Failed to cancel the scheduled post.");
     }
   } else {
-    await ctx.replyToMessage("No scheduled post found to cancel.", {
-      reply_to_message_id: messageId,
-    } as Parameters<typeof ctx.replyToMessage>[1]);
+    await replyToMessage(ctx, "No scheduled post found to cancel.");
   }
 };
 

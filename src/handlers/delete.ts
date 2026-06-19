@@ -1,28 +1,28 @@
-import type { Context } from "telegraf";
-import { TELEGRAM_RM6785_CHANNEL } from "../constants.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import { TELEGRAM_RM6785_CHANNEL } from "../constants";
+import { replyToMessage } from "../utils/contextUtils";
 
-const deleteHandler = async (ctx: Context): Promise<void> => {
-  if (!ctx.message || !("text" in ctx.message)) return;
+const deleteHandler = async (ctx: BotContext): Promise<void> => {
+  if (!ctx.message.text) return;
 
   const msgUrl = ctx.message.text.split(" ")[1];
   if (!msgUrl) {
-    await ctx.replyToMessage("Please provide a message URL.");
+    await replyToMessage(ctx, "Please provide a message URL.");
     return;
   }
   const msgId = parseInt(msgUrl.split("/").pop() || "", 10);
 
   if (isNaN(msgId) || msgId <= 0) {
-    await ctx.replyToMessage("Invalid message id");
+    await replyToMessage(ctx, "Invalid message id");
     return;
   }
 
   try {
-    await ctx.telegram.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgId);
-    await ctx.replyToMessage("Requested message deleted");
+    await ctx.bot.deleteMessage(TELEGRAM_RM6785_CHANNEL, msgId);
+    await replyToMessage(ctx, "Requested message deleted");
   } catch (e) {
     const error = e as Error;
-    await ctx.replyToMessage(`Failed to delete message: ${error.message}`);
+    await replyToMessage(ctx, `Failed to delete message: ${error.message}`);
   }
 };
 

@@ -1,4 +1,4 @@
-import type { MessageEntity } from "telegraf/types";
+import type { MessageEntity } from "node-telegram-bot-api";
 
 const lintTelegramPost = (
   text: string,

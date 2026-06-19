@@ -1,22 +1,31 @@
-import type { Context } from "telegraf";
-import { hasUserVoted, hasEnoughVotes, currentVotes, messageInfo } from "../utils/messageUtils.js";
-import { MAX_VOTES } from "../constants.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import {
+  hasUserVoted,
+  hasEnoughVotes,
+  currentVotes,
+  messageInfo,
+} from "../utils/messageUtils";
+import { MAX_VOTES } from "../constants";
+import { replyToMessage } from "../utils/contextUtils";
 
-const voteHandler = async (ctx: Context) => {
-  if (!ctx.message || !("from" in ctx.message)) return;
+const voteHandler = async (ctx: BotContext) => {
+  if (!ctx.message.from) return;
+  if (!ctx.message.reply_to_message) return;
 
   const userId = ctx.message.from.id;
-  if (!("reply_to_message" in ctx.message) || !ctx.message.reply_to_message) return;
   const messageId = ctx.message.reply_to_message.message_id;
 
   if (hasUserVoted(messageId, userId)) {
-    await ctx.replyToMessage(`User ${userId} has already voted for this message.`);
+    await replyToMessage(
+      ctx,
+      `User ${userId} has already voted for this message.`
+    );
     return;
   }
 
   if (hasEnoughVotes(messageId)) {
-    await ctx.replyToMessage(
+    await replyToMessage(
+      ctx,
       `This post already has enough approvals (${MAX_VOTES}/${MAX_VOTES})`
     );
     return;
@@ -30,7 +39,7 @@ const voteHandler = async (ctx: Context) => {
 
   const votes = currentVotes(messageId);
 
-  await ctx.replyToMessage(`Approval count (${votes}/${MAX_VOTES})`);
+  await replyToMessage(ctx, `Approval count (${votes}/${MAX_VOTES})`);
 };
 
 const handler: HandlerDescriptor = {

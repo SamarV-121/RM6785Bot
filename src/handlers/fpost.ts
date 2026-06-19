@@ -1,16 +1,10 @@
-import type { Context } from "telegraf";
-import postHandler from "./post.js";
-import { messageInfo } from "../utils/messageUtils.js";
-import { MAX_VOTES } from "../constants.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import postHandler from "./post";
+import { messageInfo } from "../utils/messageUtils";
+import { MAX_VOTES } from "../constants";
 
-const fpostHandler = async (ctx: Context) => {
-  if (
-    !ctx.message ||
-    !("reply_to_message" in ctx.message) ||
-    !ctx.message.reply_to_message
-  )
-    return;
+const fpostHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message) return;
 
   const messageId = ctx.message.reply_to_message.message_id;
   const oldMessageInfo = messageInfo[messageId];

@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/rest";
-import { GIST_ID, GIST_TOKEN } from "../config.js";
+import { GIST_ID, GIST_TOKEN } from "../config";
 
 const octokit = new Octokit({ auth: GIST_TOKEN });
 

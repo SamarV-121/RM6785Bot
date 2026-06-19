@@ -1,17 +1,12 @@
-import type { Context } from "telegraf";
-import { addAuthorizedUser } from "../utils/authUtils.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import { addAuthorizedUser } from "../utils/authUtils";
+import { replyToMessage } from "../utils/contextUtils";
 
-const authHandler = async (ctx: Context) => {
-  if (
-    !ctx.message ||
-    !("reply_to_message" in ctx.message) ||
-    !ctx.message.reply_to_message
-  )
-    return;
+const authHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message) return;
 
   const replyMsg = ctx.message.reply_to_message;
-  if (!("from" in replyMsg) || !replyMsg.from) return;
+  if (!replyMsg.from) return;
 
   const user = replyMsg.from;
   const authorized = await addAuthorizedUser({
@@ -22,11 +17,12 @@ const authHandler = async (ctx: Context) => {
   });
 
   if (authorized) {
-    await ctx.replyToMessage(
+    await replyToMessage(
+      ctx,
       `@${user.username || user.first_name} has been authorized to use the bot.`
     );
   } else {
-    await ctx.replyToMessage("This user is already authorized.");
+    await replyToMessage(ctx, "This user is already authorized.");
   }
 };
 

@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { Octokit } from "@octokit/rest";
-import { bot } from "./index.js";
-import { GH_REPO_TOKEN } from "./config.js";
+import { bot } from "./index";
+import { GH_REPO_TOKEN } from "./config";
 import simpleGit from "simple-git";
 
 const git = simpleGit();
@@ -20,7 +20,7 @@ const restartBot = async () => {
   try {
     await pullChanges();
 
-    await bot.telegram.sendMessage(
+    await bot.sendMessage(
       chatId,
       `<a href="${latestCommitUrl}">${latestRemoteCommit.substring(
         0,
@@ -38,7 +38,7 @@ const restartBot = async () => {
   } catch (error) {
     const err = error as Error;
     console.error(`Failed to restart bot: ${err.message}`);
-    await bot.telegram.sendMessage(
+    await bot.sendMessage(
       chatId,
       `Failed to restart bot: ${err.message}`
     );

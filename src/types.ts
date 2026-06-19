@@ -1,13 +1,10 @@
-import type { Context } from "telegraf";
-import type { Message } from "telegraf/types";
+import type TelegramBot from "node-telegram-bot-api";
+import type { Message } from "node-telegram-bot-api";
 
-declare module "telegraf" {
-  interface Context {
-    replyToMessage(
-      replyText: string,
-      extra?: Record<string, unknown>
-    ): Promise<Message>;
-  }
+export interface BotContext {
+  bot: TelegramBot;
+  botInfo: { id: number };
+  message: Message;
 }
 
 export interface RegisteredCommand {
@@ -19,7 +16,7 @@ export interface RegisteredCommand {
 export interface HandlerDescriptor {
   command: string;
   help: string;
-  execute: (ctx: Context) => Promise<void>;
+  execute: (ctx: BotContext) => Promise<void>;
   su?: boolean;
   auth?: boolean;
   reply_to_message?: boolean;

@@ -1,14 +1,13 @@
-import type { Context } from "telegraf";
-import { getAuthorizedUsers } from "../utils/authUtils.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import { getAuthorizedUsers } from "../utils/authUtils";
 
-const lsauthHandler = async (ctx: Context) => {
+const lsauthHandler = async (ctx: BotContext) => {
   const authorizedUsers = await getAuthorizedUsers();
   let message = "Authorized users:\n";
   authorizedUsers.forEach((user) => {
     message += `[${user.name}](tg://user?id=${user.id})\n`;
   });
-  await ctx.telegram.sendMessage(ctx.chat!.id, message, {
+  await ctx.bot.sendMessage(ctx.message.chat.id, message, {
     parse_mode: "Markdown",
   });
 };

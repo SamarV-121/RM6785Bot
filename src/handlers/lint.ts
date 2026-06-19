@@ -1,45 +1,45 @@
-import type { Context } from "telegraf";
-import lintTelegramPost from "../utils/lintUtils.js";
-import voteHandler from "./vote.js";
-import type { HandlerDescriptor } from "../types.js";
+import type { BotContext, HandlerDescriptor } from "../types";
+import lintTelegramPost from "../utils/lintUtils";
+import voteHandler from "./vote";
 
-const lintHandler = async (ctx: Context) => {
-  if (
-    !ctx.message ||
-    !("reply_to_message" in ctx.message) ||
-    !ctx.message.reply_to_message
-  )
-    return;
+const lintHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message) return;
 
   const replyMsg = ctx.message.reply_to_message;
 
   if (!("caption" in replyMsg) || !replyMsg.caption) {
-    await ctx.replyWithHTML(
+    await ctx.bot.sendMessage(
+      ctx.message.chat.id,
       "<b>ERROR:</b> No ROM banner was found. Please provide a banner for the ROM.",
       {
-        reply_to_message_id: replyMsg.message_id,
-      } as any
+        parse_mode: "HTML",
+        reply_parameters: { message_id: replyMsg.message_id },
+      }
     );
     return;
   }
 
   const [lintResult, lintSuccessful] = lintTelegramPost(
     replyMsg.caption,
-    "caption_entities" in replyMsg ? replyMsg.caption_entities ?? [] : []
+    "caption_entities" in replyMsg
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (replyMsg as any).caption_entities ?? []
+      : []
   );
 
-  ctx.replyWithHTML(lintResult, {
-    reply_to_message_id: replyMsg.message_id,
-  } as any);
+  await ctx.bot.sendMessage(ctx.message.chat.id, lintResult, {
+    parse_mode: "HTML",
+    reply_parameters: { message_id: replyMsg.message_id },
+  });
 
   if (lintSuccessful) {
-    const voteCommandCtx = {
+    const voteCommandCtx: BotContext = {
       ...ctx,
       message: {
         ...ctx.message,
-        from: { ...ctx.message.from, id: ctx.botInfo.id },
+        from: { ...ctx.message.from!, id: ctx.botInfo.id },
       },
-    } as Context;
+    };
 
     await voteHandler.execute(voteCommandCtx);
   }

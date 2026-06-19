@@ -1,35 +1,40 @@
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import { Telegraf } from "telegraf";
-import type { MiddlewareFn } from "telegraf";
+import TelegramBot from "node-telegram-bot-api";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import * as Middleware from "./middlewares.js";
-import { BOT_TOKEN } from "./config.js";
-import setupAutoPostDetection from "./autoPostDetection.js";
-import type { RegisteredCommand, HandlerDescriptor } from "./types.js";
+import * as Middleware from "./middlewares";
+import { BOT_TOKEN } from "./config";
+import setupAutoPostDetection from "./autoPostDetection";
+import type { RegisteredCommand, HandlerDescriptor, BotContext } from "./types";
+import { replyToMessage } from "./utils/contextUtils";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const argv = yargs(hideBin(process.argv)).argv;
 
-export const bot = new Telegraf(BOT_TOKEN);
+export const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
-bot.context.replyToMessage = async function (this: any, replyText: string) {
-  const msg = this.message;
-  if (!msg) return undefined as any;
+const me = await bot.getMe();
+const botInfo = { id: me.id };
 
-  const replyToMessageId =
-    ("reply_to_message" in msg ? msg.reply_to_message?.message_id : undefined) ||
-    msg.message_id;
+function compose(
+  middlewares: Middleware.Middleware[]
+): (ctx: BotContext) => Promise<void> {
+  return async (ctx) => {
+    let index = -1;
+    async function dispatch(i: number): Promise<void> {
+      if (i <= index) throw new Error("next() called multiple times");
+      index = i;
+      if (i >= middlewares.length) return;
+      await middlewares[i](ctx, () => dispatch(i + 1));
+    }
+    await dispatch(0);
+  };
+}
 
-  return this.telegram.sendMessage(msg.chat.id, replyText, {
-    reply_to_message_id: replyToMessageId,
-  } as any);
-};
-
-const handlerFiles = readdirSync(`${__dirname}/handlers`).filter((file) =>
-  file.endsWith(".ts") || file.endsWith(".js")
+const handlerFiles = readdirSync(`${__dirname}/handlers`).filter(
+  (file) => file.endsWith(".ts") || file.endsWith(".js")
 );
 
 export const registeredCommands: RegisteredCommand[] = [];
@@ -38,7 +43,7 @@ for (const handlerFile of handlerFiles) {
   const handlerModule = await import(`./handlers/${handlerFile}`);
   const handler = handlerModule.default as HandlerDescriptor;
 
-  const middlewares: MiddlewareFn<any>[] = [];
+  const middlewares: Middleware.Middleware[] = [];
 
   if (handler.su) {
     middlewares.push(Middleware.suMiddleware);
@@ -56,14 +61,26 @@ for (const handlerFile of handlerFiles) {
     middlewares.push(Middleware.checkDataMiddleware);
   }
 
-  const commandHandler = Telegraf.compose([...middlewares, handler.execute]);
+  const commandHandler = compose([
+    ...middlewares,
+    async (ctx) => {
+      await handler.execute(ctx);
+    },
+  ]);
 
   const commands = handler.command.split(" or ");
   commands.forEach((command) => {
     if (command.match(/[^\w\s]/g)) {
-      bot.hears(command, commandHandler);
+      bot.onText(new RegExp(`^\\${command}(?:\\s.*)?$`), async (msg) => {
+        await commandHandler({ bot, botInfo, message: msg });
+      });
     } else {
-      bot.command(command, commandHandler);
+      bot.onText(
+        new RegExp(`^/${command}(?:@\\w+)?(?:\\s.*)?$`),
+        async (msg) => {
+          await commandHandler({ bot, botInfo, message: msg });
+        }
+      );
 
       const prio = handler.priority ?? 0;
       registeredCommands.push({
@@ -77,7 +94,7 @@ for (const handlerFile of handlerFiles) {
   });
 }
 
-bot.telegram
+bot
   .getMyCommands()
   .then((fetchedCommands) => {
     const existingCommands = new Map(
@@ -89,7 +106,7 @@ bot.telegram
     );
 
     if (commandsToRegister.length > 0) {
-      bot.telegram
+      bot
         .setMyCommands([...fetchedCommands, ...commandsToRegister])
         .catch((error: Error) => {
           console.log(
@@ -104,18 +121,18 @@ bot.telegram
     );
   });
 
-bot.start((ctx) =>
-  ctx.replyToMessage(
+bot.onText(/^\/start(?:@\w+)?(?:\s.*)?$/, async (msg) => {
+  const ctx: BotContext = { bot, botInfo, message: msg };
+  await replyToMessage(
+    ctx,
     "Hola, amigo. I'm RM6785Bot, specially created to handle posts on the RM6785 telegram channel.\nSpank /help to know more about me"
-  )
-);
+  );
+});
 
-setupAutoPostDetection(bot);
-
-bot.launch();
+setupAutoPostDetection(bot, botInfo);
 
 if ((argv as any).ci) {
   console.log("Starting the bot with CI");
-  const { default: commitListener } = await import("./ci.js");
+  const { default: commitListener } = await import("./ci");
   setInterval(commitListener, 5000);
 }

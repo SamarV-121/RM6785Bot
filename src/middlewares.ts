@@ -1,55 +1,53 @@
-import type { Context, MiddlewareFn } from "telegraf";
-import { isAuthorized } from "./utils/authUtils.js";
-import { TELEGRAM_SU_ID } from "./constants.js";
+import type { BotContext } from "./types";
+import { isAuthorized } from "./utils/authUtils";
+import { TELEGRAM_SU_ID } from "./constants";
+import { replyToMessage } from "./utils/contextUtils";
 
-export const suMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
-  const userId = ctx.from?.id;
+export type Middleware = (
+  ctx: BotContext,
+  next: () => Promise<void>
+) => Promise<void>;
+
+export const suMiddleware: Middleware = async (ctx, next) => {
+  const userId = ctx.message.from?.id;
 
   if (!userId || !TELEGRAM_SU_ID.includes(userId)) {
-    await ctx.replyToMessage("You are not authorized to use this command.");
+    await replyToMessage(ctx, "You are not authorized to use this command.");
     return;
   }
 
   return next();
 };
 
-export const authMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
-  if (!ctx.from) return;
+export const authMiddleware: Middleware = async (ctx, next) => {
+  if (!ctx.message.from) return;
 
-  const userAuthorized = await isAuthorized(ctx.from.id);
+  const userAuthorized = await isAuthorized(ctx.message.from.id);
 
   if (!userAuthorized) {
-    await ctx.replyToMessage("You are not authorized to use this command.");
+    await replyToMessage(ctx, "You are not authorized to use this command.");
     return;
   }
 
   return next();
 };
 
-export const replyToMessageMiddleware: MiddlewareFn<Context> = async (
-  ctx,
-  next
-) => {
-  const { message } = ctx;
-
-  if (!message || !("reply_to_message" in message) || !message.reply_to_message) {
-    await ctx.replyToMessage("Please reply to a message.");
+export const replyToMessageMiddleware: Middleware = async (ctx, next) => {
+  if (!ctx.message.reply_to_message) {
+    await replyToMessage(ctx, "Please reply to a message.");
     return;
   }
 
   return next();
 };
 
-export const checkDataMiddleware: MiddlewareFn<Context> = async (
-  ctx,
-  next
-) => {
-  if (!ctx.message || !("text" in ctx.message)) return;
+export const checkDataMiddleware: Middleware = async (ctx, next) => {
+  if (!ctx.message.text) return;
 
   const msgText = ctx.message.text.split(" ");
 
   if (!msgText[1]) {
-    await ctx.replyToMessage("No data is provided");
+    await replyToMessage(ctx, "No data is provided");
     return;
   }
 
