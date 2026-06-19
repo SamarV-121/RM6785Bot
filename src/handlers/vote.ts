@@ -18,7 +18,7 @@ const voteHandler = async (ctx: BotContext) => {
   if (hasUserVoted(messageId, userId)) {
     await replyToMessage(
       ctx,
-      `User ${userId} has already voted for this message.`
+      `User $${userId}$ has already voted for this message.`
     );
     return;
   }
@@ -26,7 +26,8 @@ const voteHandler = async (ctx: BotContext) => {
   if (hasEnoughVotes(messageId)) {
     await replyToMessage(
       ctx,
-      `This post already has enough approvals ($$${MAX_VOTES}/${MAX_VOTES}$$)`
+      "This post already has enough approvals.\n\n" +
+        `$$${MAX_VOTES}/${MAX_VOTES}$$\n\n<aside>Approval Counts<cite>Vote Failed</cite></aside>`
     );
     return;
   }
@@ -39,7 +40,10 @@ const voteHandler = async (ctx: BotContext) => {
 
   const votes = currentVotes(messageId);
 
-  await replyToMessage(ctx, `Approval count ($$${votes}/${MAX_VOTES}$$)`);
+  await replyToMessage(
+    ctx,
+    `$$${votes}/${MAX_VOTES}$$\n\n<aside>Approval Counts<cite>Vote Successful</cite></aside>`
+  );
 };
 
 const handler: HandlerDescriptor = {
