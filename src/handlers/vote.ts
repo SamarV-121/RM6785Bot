@@ -26,7 +26,7 @@ const voteHandler = async (ctx: BotContext) => {
   if (hasEnoughVotes(messageId)) {
     await replyToMessage(
       ctx,
-      `This post already has enough approvals (${MAX_VOTES}/${MAX_VOTES})`
+      `This post already has enough approvals ($$${MAX_VOTES}/${MAX_VOTES}$$)`
     );
     return;
   }
@@ -39,7 +39,7 @@ const voteHandler = async (ctx: BotContext) => {
 
   const votes = currentVotes(messageId);
 
-  await replyToMessage(ctx, `Approval count (${votes}/${MAX_VOTES})`);
+  await replyToMessage(ctx, `Approval count ($$${votes}/${MAX_VOTES}$$)`);
 };
 
 const handler: HandlerDescriptor = {

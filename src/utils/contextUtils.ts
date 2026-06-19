@@ -9,8 +9,12 @@ export async function replyToMessage(
   const replyToMessageId =
     ctx.message.reply_to_message?.message_id || ctx.message.message_id;
 
-  return ctx.bot.sendMessage(ctx.message.chat.id, replyText, {
-    ...extra,
-    reply_parameters: { message_id: replyToMessageId },
-  });
+  return ctx.bot.sendRichMessage(
+    ctx.message.chat.id,
+    { markdown: replyText },
+    {
+      ...extra,
+      reply_parameters: { message_id: replyToMessageId },
+    }
+  );
 }
