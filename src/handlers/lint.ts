@@ -1,6 +1,6 @@
 import type { BotContext, HandlerDescriptor } from "../types";
 import lintTelegramPost from "../utils/lintUtils";
-import voteHandler from "./vote";
+import { handler as voteHandler } from "./vote";
 
 const lintHandler = async (ctx: BotContext) => {
   if (!ctx.message.reply_to_message) return;
@@ -57,4 +57,4 @@ const handler: HandlerDescriptor = {
   execute: lintHandler,
 };
 
-export default handler;
+export { handler };

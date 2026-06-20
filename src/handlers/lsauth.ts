@@ -18,4 +18,4 @@ const handler: HandlerDescriptor = {
   execute: lsauthHandler,
 };
 
-export default handler;
+export { handler };

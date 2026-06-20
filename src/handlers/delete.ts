@@ -34,4 +34,4 @@ const handler: HandlerDescriptor = {
   execute: deleteHandler,
 };
 
-export default handler;
+export { handler };

@@ -40,4 +40,4 @@ const handler: HandlerDescriptor = {
   execute: cancelHandler,
 };
 
-export default handler;
+export { handler };

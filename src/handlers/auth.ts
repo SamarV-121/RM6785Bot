@@ -34,4 +34,4 @@ const handler: HandlerDescriptor = {
   execute: authHandler,
 };
 
-export default handler;
+export { handler };

@@ -29,4 +29,4 @@ const handler: HandlerDescriptor = {
   execute: rmauthHandler,
 };
 
-export default handler;
+export { handler };

@@ -131,4 +131,4 @@ const handler: HandlerDescriptor = {
   execute: postHandler,
 };
 
-export default handler;
+export { handler };

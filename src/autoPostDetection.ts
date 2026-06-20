@@ -6,8 +6,8 @@ import {
   REQUEST_TIMEOUT,
 } from "./constants";
 import lintTelegramPost from "./utils/lintUtils";
-import lsauthHandler from "./handlers/lsauth";
-import lintHandler from "./handlers/lint";
+import { handler as lsauthHandler } from "./handlers/lsauth";
+import { handler as lintHandler } from "./handlers/lint";
 import type { BotContext } from "./types";
 import { replyToMessage } from "./utils/contextUtils";
 

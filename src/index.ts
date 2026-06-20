@@ -41,7 +41,7 @@ export const registeredCommands: RegisteredCommand[] = [];
 
 for (const handlerFile of handlerFiles) {
   const handlerModule = await import(`./handlers/${handlerFile}`);
-  const handler = handlerModule.default as HandlerDescriptor;
+  const handler = handlerModule.handler as HandlerDescriptor;
 
   const middlewares: Middleware.Middleware[] = [];
 

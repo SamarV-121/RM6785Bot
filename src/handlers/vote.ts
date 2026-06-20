@@ -54,4 +54,4 @@ const handler: HandlerDescriptor = {
   execute: voteHandler,
 };
 
-export default handler;
+export { handler };

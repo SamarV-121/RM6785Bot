@@ -19,4 +19,4 @@ const handler: HandlerDescriptor = {
   priority: 100,
 };
 
-export default handler;
+export { handler };

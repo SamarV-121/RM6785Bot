@@ -1,5 +1,5 @@
 import type { BotContext, HandlerDescriptor } from "../types";
-import postHandler from "./post";
+import { handler as postHandler } from "./post";
 import { messageInfo } from "../utils/messageUtils";
 import { MAX_VOTES } from "../constants";
 
@@ -29,4 +29,4 @@ const handler: HandlerDescriptor = {
   execute: fpostHandler,
 };
 
-export default handler;
+export { handler };
