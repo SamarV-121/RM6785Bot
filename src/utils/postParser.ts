@@ -173,7 +173,7 @@ export const constructPostRichBlock = (
   return `\
 ![](${bannerLink} "ROM banner")
 
-${pd.hashtags.join(" ")}
+\${pd.hashtags.join(" ")}
 
 # ${pd.title}
 
