@@ -170,6 +170,9 @@ export const constructPostRichBlock = (
   pd: ParsedPostData,
   bannerLink: string
 ): string => {
+  const screenshots = pd.screenshotsLink
+    ? `\n[Screenshots](${pd.screenshotsLink})\n`
+    : "";
   return `\
 ![](${bannerLink} "ROM banner")
 
@@ -198,9 +201,7 @@ export const constructPostRichBlock = (
 - ${pd.downloads.join("\n- ")}
 
 [Sources](${pd.sourcesLink})
-
-[Screenshots](${pd.screenshotsLink})
-
+${screenshots}
 [Support group](${pd.supportgroupLink})
 `;
 };
