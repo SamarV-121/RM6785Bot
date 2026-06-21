@@ -5,6 +5,8 @@
     "": {
       "name": "rm6785_bot",
       "dependencies": {
+        "@logtape/logtape": "^2.1.5",
+        "@logtape/pretty": "^2.1.5",
         "@octokit/rest": "^22.0.1",
         "dotenv": "^17.4.2",
         "node-telegram-bot-api": "^1.1.0",
@@ -22,6 +24,10 @@
     "@kwsites/file-exists": ["@kwsites/file-exists@1.1.1", "", { "dependencies": { "debug": "^4.1.1" } }, "sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw=="],
 
     "@kwsites/promise-deferred": ["@kwsites/promise-deferred@1.1.1", "", {}, "sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw=="],
+
+    "@logtape/logtape": ["@logtape/logtape@2.1.5", "", {}, "sha512-59fyskQ9hR5mYQP9YMznZDtwRS4gIN7VIJkoRe0SLTmU+BQGaSP1s+ve8r+Binj1m6jNpwlF7yu9fz2/asSFLw=="],
+
+    "@logtape/pretty": ["@logtape/pretty@2.1.5", "", { "peerDependencies": { "@logtape/logtape": "^2.1.5" } }, "sha512-oZskWBaNGK3KlO21XYaJ0OQd83t6o+FuJj5ONrNmV95dTOj1ZHnjvKVls21a+zAFuXOJGHnlSfvAtcGfKpzX5A=="],
 
     "@octokit/auth-token": ["@octokit/auth-token@6.0.0", "", {}, "sha512-P4YJBPdPSpWTQ1NU4XYdvHvXJJDxM6YwpS0FZHRgP7YFkdVxsWcpWGy/NVqlAA7PcPCnMacXlRm1y2PFZRWL/w=="],
 

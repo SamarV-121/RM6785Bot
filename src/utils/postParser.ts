@@ -10,6 +10,9 @@ import {
   RichTextBold,
   RichBlockListItem,
 } from "node-telegram-bot-api";
+import { getLogger } from "@logtape/logtape";
+
+const logger = getLogger(["RM6785Bot", "utils", "postParser"]);
 
 export interface ParsedPostData {
   buildAuthor: string;
@@ -59,19 +62,23 @@ export const parsePost = (m: Message): ParsedPostData | undefined => {
     const theText = m.caption!.substring(offset, offset + length);
     switch (theText) {
       case "Download":
+        logger.info(`Download text_link: ${theText}, ${url}`);
         downloadLink = url;
         break;
       case "Sources":
+        logger.info(`Sources text_link: ${theText}, ${url}`);
         sourcesLink = url;
         break;
       case "Screenshots":
+        logger.info(`Screenshots text_link: ${theText}, ${url}`);
         screenshotsLink = url;
         break;
       case "Support group":
+        logger.info(`Support group text_link: ${theText}, ${url}`);
         supportgroupLink = url;
         break;
       default:
-        console.warn(`[postParser] unknown text_link: ${theText}`);
+        logger.warning(`unknown text_link: ${theText}, ${url}`);
     }
   }
 

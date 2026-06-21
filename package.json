@@ -9,6 +9,8 @@
   "author": "SamarV-121",
   "license": "UNLICENSED",
   "dependencies": {
+    "@logtape/logtape": "^2.1.5",
+    "@logtape/pretty": "^2.1.5",
     "@octokit/rest": "^22.0.1",
     "dotenv": "^17.4.2",
     "node-telegram-bot-api": "^1.1.0",

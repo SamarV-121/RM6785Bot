@@ -1,3 +1,7 @@
+// logging must be set up before anyting else because we are
+// overriding console.*
+import { configure, getConsoleSink, getLogger } from "@logtape/logtape";
+import { prettyFormatter } from "@logtape/pretty";
 import { readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
@@ -17,6 +21,39 @@ export const bot = new TelegramBot(BOT_TOKEN, { polling: true });
 
 const me = await bot.getMe();
 const botInfo = { id: me.id };
+
+await configure({
+  sinks: { console: getConsoleSink({ formatter: prettyFormatter }) },
+  loggers: [
+    {
+      category: ["logtape", "meta"],
+      lowestLevel: "fatal",
+      sinks: ["console"],
+    },
+    {
+      category: ["RM6785Bot"],
+      lowestLevel: "debug",
+      sinks: ["console"],
+    },
+    {
+      category: ["RM6785Bot", "handlers"],
+      lowestLevel: "debug",
+      sinks: ["console"],
+    },
+    {
+      category: ["RM6785Bot", "utils"],
+      lowestLevel: "debug",
+      sinks: ["console"],
+    },
+    {
+      category: ["dependency"],
+      lowestLevel: "debug",
+      sinks: ["console"],
+    },
+  ],
+});
+
+const logger = getLogger(["RM6785Bot"]);
 
 function compose(
   middlewares: Middleware.Middleware[]
@@ -89,7 +126,7 @@ for (const handlerFile of handlerFiles) {
         priority: prio,
       });
 
-      console.log(`INFO: Successfully registered '${command}' command`);
+      logger.info(`successfully registered '${command}' command`);
     }
   });
 }
@@ -109,16 +146,14 @@ bot
       bot
         .setMyCommands([...fetchedCommands, ...commandsToRegister])
         .catch((error: Error) => {
-          console.log(
-            `ERROR: Failed to register the slash commands:\n${error.message}`
+          logger.error(
+            `failed to register the slash commands:\n${error.message}`
           );
         });
     }
   })
   .catch((error: Error) => {
-    console.log(
-      `ERROR: Failed to fetch the registered commands:\n${error.message}`
-    );
+    logger.error(`failed to fetch the registered commands:\n${error.message}`);
   });
 
 bot.onText(/^\/start(?:@\w+)?(?:\s.*)?$/, async (msg) => {
@@ -132,7 +167,7 @@ bot.onText(/^\/start(?:@\w+)?(?:\s.*)?$/, async (msg) => {
 setupAutoPostDetection(bot, botInfo);
 
 if ((argv as any).ci) {
-  console.log("Starting the bot with CI");
+  logger.info("Starting the bot with CI");
   const { default: commitListener } = await import("./ci");
   setInterval(commitListener, 5000);
 }
