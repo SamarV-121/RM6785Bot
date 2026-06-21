@@ -49,13 +49,13 @@ const postrichHandler = async (ctx: BotContext) => {
     return;
   }
 
-  // if (!hasEnoughVotes(messageId)) {
-  //   await replyToMessage(
-  //     ctx,
-  //     `This message does not have enough approvals (${votes}/${MAX_VOTES})`
-  //   );
-  //   return;
-  // }
+  if (!hasEnoughVotes(messageId)) {
+    await replyToMessage(
+      ctx,
+      `This message does not have enough approvals (${votes}/${MAX_VOTES})`
+    );
+    return;
+  }
 
   msg.isPosted = true;
 
