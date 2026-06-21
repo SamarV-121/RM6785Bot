@@ -28,7 +28,7 @@ export interface ParsedPostData {
 }
 
 export const parsePost = (m: Message): ParsedPostData | undefined => {
-  if (!m.entities) return undefined;
+  if (!m.caption_entities) return undefined;
 
   const pp: ParsedPostData = {
     buildAuthor: "",
@@ -51,12 +51,12 @@ export const parsePost = (m: Message): ParsedPostData | undefined => {
   let sourcesLink: string = "";
   let screenshotsLink: string = "";
   let supportgroupLink: string = "";
-  for (const entity of m.entities) {
+  for (const entity of m.caption_entities) {
     if (entity.type != "text_link") continue;
     const url = entity.url!;
     const length = entity.length;
     const offset = entity.offset;
-    const theText = m.text!.substring(offset, offset + length);
+    const theText = m.caption!.substring(offset, offset + length);
     switch (theText) {
       case "Download":
         downloadLink = url;
@@ -80,7 +80,7 @@ export const parsePost = (m: Message): ParsedPostData | undefined => {
   pp.screenshotsLink = screenshotsLink;
   pp.supportgroupLink = supportgroupLink;
 
-  const lines = m.text!.split("\n");
+  const lines = m.caption!.split("\n");
   let inSection:
     | ""
     | "hashtags"
