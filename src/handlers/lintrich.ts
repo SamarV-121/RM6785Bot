@@ -1,0 +1,44 @@
+import type { BotContext, HandlerDescriptor } from "../types";
+import lintTelegramPost from "../utils/lintUtils";
+import { parsePost } from "../utils/postParser";
+import { handler as voteHandler } from "./vote";
+
+const lintHandler = async (ctx: BotContext) => {
+  if (!ctx.message.reply_to_message) return;
+
+  const replyMsg = ctx.message.reply_to_message;
+
+  if (!("caption" in replyMsg) || !replyMsg.caption) {
+    await ctx.bot.sendRichMessage(
+      ctx.message.chat.id,
+      {
+        markdown:
+          "# ERROR: No ROM banner was found. Please provide a banner for the ROM.",
+      },
+      {
+        reply_parameters: { message_id: replyMsg.message_id },
+      }
+    );
+    return;
+  }
+
+  const result = parsePost(ctx.message.reply_to_message);
+  const lintResultMarkdown = result !== undefined ? "# successful" : "# failed";
+
+  await ctx.bot.sendRichMessage(
+    ctx.message.chat.id,
+    { markdown: lintResultMarkdown },
+    {
+      reply_parameters: { message_id: replyMsg.message_id },
+    }
+  );
+};
+
+const handler: HandlerDescriptor = {
+  command: "lintrich",
+  help: "Check if the rich parser is able to parse the post.",
+  reply_to_message: true,
+  execute: lintHandler,
+};
+
+export { handler };
