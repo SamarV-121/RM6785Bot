@@ -46,13 +46,8 @@ export const parsePostAndConstructRichMarkdown = (
   let richMarkdown = m
     .caption!.replaceAll(/^• /gm, "- ")
     .replace(/^(.* for Realme .* \[\w+\])$/m, "# $1\n")
-    .replace(/^Changelog$/m, "## Changelog\n")
-    .replace(/^Bugs$/m, "## Bugs\n")
-    .replace(/^Notes$/m, "## Notes\n")
-    .replace(/^Downloads$/m, "## Downloads\n")
-    .replace(/^Sources$/m, "<sub>Sources</sub>\n")
-    .replace(/^Screenshots$/m, "<sub>Screenshots</sub>\n")
-    .replace(/^Support group$/m, "<sub>Support group</sub>\n");
+    .replace(/^(Changelog|Bugs|Notes|Downloads)$/gm, "## $1\n")
+    .replace(/^(Sources|Screenshots|Support group)$/gm, "<sub>$1</sub>\n");
 
   let cursor = 0;
 
