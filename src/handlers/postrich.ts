@@ -14,7 +14,10 @@ import {
 } from "../constants";
 import { replyToMessage } from "../utils/contextUtils";
 import type { Message } from "node-telegram-bot-api";
-import { parsePost, constructPostRichBlock } from "../utils/postParser";
+import {
+  parsePostAndConstructRichMarkdown,
+  constructPostRichBlock,
+} from "../utils/postParser";
 
 const postrichHandler = async (ctx: BotContext) => {
   if (!ctx.message.reply_to_message || !ctx.message.text) return;
@@ -90,9 +93,8 @@ const postrichHandler = async (ctx: BotContext) => {
 
       if (secondsLeft <= 0) {
         console.log(m);
-        const parsed = parsePost(m);
-        if (!parsed) return;
-        const richMarkdown = constructPostRichBlock(parsed, bannerLink);
+        const richMarkdown = parsePostAndConstructRichMarkdown(m, bannerLink);
+        if (!richMarkdown) return;
 
         const sentPostMessage = await ctx.bot.sendRichMessage(
           TELEGRAM_RM6785_CHANNEL,
