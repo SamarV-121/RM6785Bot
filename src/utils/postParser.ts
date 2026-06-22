@@ -15,204 +15,70 @@ import { getLogger } from "@logtape/logtape";
 const logger = getLogger(["RM6785Bot", "utils", "postParser"]);
 
 export interface ParsedPostData {
-  buildAuthor: string;
-  buildDate: string;
-  buildAndroidVersion: string;
-  hashtags: string[];
   title: string;
-  changelogs: string[];
-  bugs: string[];
-  notes?: string[];
-  downloads: string[];
-  downloadLink: string;
-  sourcesLink: string;
-  screenshotsLink: string;
-  supportgroupLink: string;
+  anchorLinks: [string, string][];
 }
 
-export const parsePost = (m: Message): ParsedPostData | undefined => {
+export const parsePostAndConstructRichMarkdown = (
+  m: Message,
+  bannerLink?: string | undefined
+): string | undefined => {
   if (!m.caption_entities) return undefined;
 
   const pp: ParsedPostData = {
-    buildAuthor: "",
-    buildDate: "",
-    buildAndroidVersion: "",
-    hashtags: [],
     title: "",
-    changelogs: [],
-    bugs: [],
-    notes: [],
-    downloads: [],
-    downloadLink: "",
-    sourcesLink: "",
-    screenshotsLink: "",
-    supportgroupLink: "",
+    anchorLinks: [],
   };
 
-  // find all inline links
-  let downloadLink: string = "";
-  let sourcesLink: string = "";
-  let screenshotsLink: string = "";
-  let supportgroupLink: string = "";
   for (const entity of m.caption_entities) {
     if (entity.type != "text_link") continue;
     const url = entity.url!;
     const length = entity.length;
     const offset = entity.offset;
     const theText = m.caption!.substring(offset, offset + length);
-    switch (theText) {
-      case "Download":
-        logger.info(`Download text_link: ${theText}, ${url}`);
-        downloadLink = url;
+    logger.debug(`text_link text=${theText}, url=${url}`);
+    pp.anchorLinks.push([theText, url]);
+  }
+
+  const titleRaw = m.caption!.match(/^.* for Realme .* \[\w+\]$/gm)![0].trim();
+  pp.title = titleRaw.split("for")[0].trim();
+
+  let richMarkdown = m
+    .caption!.replaceAll(/^• /gm, "- ")
+    .replace(/^(.* for Realme .* \[\w+\])$/m, "# $1\n")
+    .replace(/^(Changelog|Bugs|Notes|Downloads)$/gm, "## $1\n")
+    .replace(/^(Sources|Screenshots|Support group)$/gm, "<sub>$1</sub>\n");
+
+  let cursor = 0;
+
+  for (const [name, url] of pp.anchorLinks) {
+    let matchIndex = richMarkdown.indexOf(name, cursor);
+    while (matchIndex !== -1) {
+      // guard against edge case where download matches
+      // the "## Downloads" header instead of "- Download"
+      const charBefore = richMarkdown[matchIndex - 1] || "";
+      const charAfter = richMarkdown[matchIndex + name.length] || "";
+      if (!/\w/.test(charBefore) && !/\w/.test(charAfter)) {
         break;
-      case "Sources":
-        logger.info(`Sources text_link: ${theText}, ${url}`);
-        sourcesLink = url;
-        break;
-      case "Screenshots":
-        logger.info(`Screenshots text_link: ${theText}, ${url}`);
-        screenshotsLink = url;
-        break;
-      case "Support group":
-        logger.info(`Support group text_link: ${theText}, ${url}`);
-        supportgroupLink = url;
-        break;
-      default:
-        logger.warning(`unknown text_link: ${theText}, ${url}`);
+      }
+
+      matchIndex = richMarkdown.indexOf(name, matchIndex + 1);
+    }
+
+    if (matchIndex !== -1) {
+      const anchorTag = `<a href="${url}">${name}</a>`;
+
+      richMarkdown =
+        richMarkdown.slice(0, matchIndex) +
+        anchorTag +
+        richMarkdown.slice(matchIndex + name.length);
+
+      cursor = matchIndex + anchorTag.length;
     }
   }
 
-  pp.downloadLink = downloadLink;
-  pp.sourcesLink = sourcesLink;
-  pp.screenshotsLink = screenshotsLink;
-  pp.supportgroupLink = supportgroupLink;
-
-  const lines = m.caption!.split("\n");
-  let inSection:
-    | ""
-    | "hashtags"
-    | "changelog"
-    | "bugs"
-    | "notes"
-    | "downloads" = "";
-  // parse line-by-line
-  for (const l of lines) {
-    if (l === "") continue;
-
-    if (l.startsWith("#")) {
-      inSection = "hashtags";
-      pp.hashtags = l.split(" ");
-      continue;
-    }
-
-    if (inSection === "hashtags") {
-      inSection = "";
-      pp.title = l;
-      continue;
-    }
-
-    if (l.startsWith("• Author")) {
-      pp.buildAuthor = l.split(":")[1].trim();
-      continue;
-    }
-    if (l.startsWith("• Android version")) {
-      pp.buildAndroidVersion = l.split(":")[1].trim();
-      continue;
-    }
-    if (l.startsWith("• Build date")) {
-      pp.buildDate = l.split(":")[1].trim();
-      continue;
-    }
-
-    if (l.startsWith("Changelog")) {
-      inSection = "changelog";
-      continue;
-    }
-    if (l.startsWith("Bugs")) {
-      inSection = "bugs";
-      continue;
-    }
-    if (l.startsWith("Notes")) {
-      inSection = "notes";
-      continue;
-    }
-    if (l.startsWith("Downloads")) {
-      inSection = "downloads";
-      continue;
-    }
-
-    if (
-      l.startsWith("Sources") ||
-      l.startsWith("Screenshots") ||
-      l.startsWith("Support group")
-    )
-      continue;
-
-    if (!l.startsWith("• ")) continue;
-    const lList = l.replace("• ", "");
-    switch (inSection) {
-      case "changelog":
-        pp.changelogs.push(lList);
-        break;
-      case "bugs":
-        pp.bugs.push(lList);
-        break;
-      case "notes":
-        pp.notes?.push(lList);
-        break;
-      case "downloads":
-        if (lList === "Download") continue;
-        pp.downloads.push(lList);
-        break;
-      // default:
-      //   throw new Error("unreachable");
-    }
-  }
-
-  if (pp.notes?.length == 0) delete pp.notes;
-  return pp;
-};
-
-export const constructPostRichBlock = (
-  pd: ParsedPostData,
-  bannerLink: string
-): string => {
-  const romName = pd.title.split("for")[0].trim();
-  const screenshots = pd.screenshotsLink
-    ? `\n<sub><a href="${pd.screenshotsLink}">Screenshots</a></sub>\n`
-    : "";
-  return `\
-![](${bannerLink} "${romName}")
-
-\\${pd.hashtags.join(" ")}
-
-# ${pd.title}
-
-- Author: ${pd.buildAuthor}
-- Android version: ${pd.buildAndroidVersion}
-- Build date: ${pd.buildDate}
-
-## Changelog
-
-- ${pd.changelogs.join("\n- ")}
-
-## Bugs
-
-- ${pd.bugs.join("\n- ")}
-
-## Notes
-
-- ${pd.notes?.join("\n- ")}
-
-## Downloads
-
-- ${pd.downloads.join("\n- ")}
-- [Download](${pd.downloadLink})
-
-<sub><a href="${pd.sourcesLink}">Sources</a></sub>
-${screenshots}
-<sub><a href="${pd.supportgroupLink}">Support group</a></sub>
-`;
+  if (bannerLink) return `![](${bannerLink} "${pp.title}")` + richMarkdown;
+  return richMarkdown;
 };
 
 /* export */ const _constructPostRichBlock = (

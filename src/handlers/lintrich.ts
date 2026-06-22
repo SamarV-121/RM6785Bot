@@ -1,7 +1,5 @@
 import type { BotContext, HandlerDescriptor } from "../types";
-import lintTelegramPost from "../utils/lintUtils";
-import { parsePost } from "../utils/postParser";
-import { handler as voteHandler } from "./vote";
+import { parsePostAndConstructRichMarkdown } from "../utils/postParser";
 
 const lintHandler = async (ctx: BotContext) => {
   if (!ctx.message.reply_to_message) return;
@@ -22,7 +20,9 @@ const lintHandler = async (ctx: BotContext) => {
     return;
   }
 
-  const result = parsePost(ctx.message.reply_to_message);
+  const result = parsePostAndConstructRichMarkdown(
+    ctx.message.reply_to_message
+  );
   const lintResultMarkdown = result !== undefined ? "# successful" : "# failed";
 
   await ctx.bot.sendRichMessage(
