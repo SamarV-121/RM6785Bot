@@ -14,10 +14,7 @@ import {
 } from "../constants";
 import { replyToMessage } from "../utils/contextUtils";
 import type { Message } from "node-telegram-bot-api";
-import {
-  parsePostAndConstructRichMarkdown,
-  constructPostRichBlock,
-} from "../utils/postParser";
+import { parsePostAndConstructRichMarkdown } from "../utils/postParser";
 
 const postrichHandler = async (ctx: BotContext) => {
   if (!ctx.message.reply_to_message || !ctx.message.text) return;
