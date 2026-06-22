@@ -20,7 +20,7 @@ const postHandler = async (ctx: BotContext) => {
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
   const votes = currentVotes(messageId);
-  const timeoutMatch = ctx.message.text?.match(/\/post (\d+)m/);
+  const timeoutMatch = ctx.message.text?.match(/\/post \d+(\.\d+)?m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
     const timeoutInMinutes = parseInt(timeoutMatch[1]);

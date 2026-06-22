@@ -30,10 +30,10 @@ const postrichHandler = async (ctx: BotContext) => {
     await replyToMessage(ctx, "Not enough arg");
     return;
   }
-  const timeoutMatch = mText[1].match(/(\d+)m/);
+  const timeoutMatch = mText[1].match(/\d+(\.\d+)?m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
-    const timeoutInMinutes = parseInt(timeoutMatch[1]);
+    const timeoutInMinutes = parseFloat(timeoutMatch[1]);
     timeoutInMs = timeoutInMinutes * 60000;
   }
   const bannerLink = mText[2];
