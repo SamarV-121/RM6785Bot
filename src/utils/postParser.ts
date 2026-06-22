@@ -8,6 +8,7 @@ export interface ParsedPostData {
   anchorLinks: [string, string][];
 }
 
+// TODO: also preserve bolds, italics, monospace and whatnot
 export const parsePostAndConstructRichMarkdown = (
   m: Message,
   bannerLink?: string | undefined
