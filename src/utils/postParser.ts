@@ -3,11 +3,6 @@ import { getLogger } from "@logtape/logtape";
 
 const logger = getLogger(["RM6785Bot", "utils", "postParser"]);
 
-export interface ParsedPostData {
-  title: string;
-  anchorLinks: [string, string][];
-}
-
 // TODO: also preserve bolds, italics, monospace and whatnot
 export const parsePostAndConstructRichMarkdown = (
   m: Message,
@@ -15,10 +10,8 @@ export const parsePostAndConstructRichMarkdown = (
 ): string | undefined => {
   if (!m.caption_entities) return undefined;
 
-  const pp: ParsedPostData = {
-    title: "",
-    anchorLinks: [],
-  };
+  let title = "";
+  const anchorLinks = [];
 
   for (const entity of m.caption_entities) {
     if (entity.type != "text_link") continue;
@@ -27,11 +20,11 @@ export const parsePostAndConstructRichMarkdown = (
     const offset = entity.offset;
     const theText = m.caption!.substring(offset, offset + length);
     logger.debug(`text_link text=${theText}, url=${url}`);
-    pp.anchorLinks.push([theText, url]);
+    anchorLinks.push([theText, url]);
   }
 
   const titleRaw = m.caption!.match(/^.* for Realme .* \[\w+\]$/gm)![0].trim();
-  pp.title = titleRaw.split("for")[0].trim();
+  title = titleRaw.split("for")[0].trim();
 
   let richMarkdown = m
     .caption!.replaceAll(/^• /gm, "- ")
@@ -41,7 +34,7 @@ export const parsePostAndConstructRichMarkdown = (
 
   let cursor = 0;
 
-  for (const [name, url] of pp.anchorLinks) {
+  for (const [name, url] of anchorLinks) {
     let matchIndex = richMarkdown.indexOf(name, cursor);
     while (matchIndex !== -1) {
       // guard against edge case where download matches
@@ -67,7 +60,7 @@ export const parsePostAndConstructRichMarkdown = (
     }
   }
 
-  if (bannerLink) return `![](${bannerLink} "${pp.title}")` + richMarkdown;
+  if (bannerLink) return `![](${bannerLink} "${title}")` + richMarkdown;
   return richMarkdown;
 };
 
