@@ -23,7 +23,7 @@ const postHandler = async (ctx: BotContext) => {
   const timeoutMatch = ctx.message.text?.match(/\/post \d+(\.\d+)?m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
-    const timeoutInMinutes = parseInt(timeoutMatch[1]);
+    const timeoutInMinutes = parseFloat(timeoutMatch[1]);
     timeoutInMs = timeoutInMinutes * 60000;
   }
 
