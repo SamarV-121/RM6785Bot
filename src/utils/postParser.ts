@@ -40,34 +40,45 @@ export const parsePostAndConstructRichMarkdown = (
     pp.anchorLinks.push([theText, url]);
   }
 
-  const titleRaw = m.caption!.match(/.* for .* \[\w+\]$/)![0];
+  const titleRaw = m.caption!.match(/^.* for Realme .* \[\w+\]$/gm)![0].trim();
   pp.title = titleRaw.split("for")[0].trim();
 
   let richMarkdown = m
-    .caption!.replaceAll(/^• /, "- ")
-    .replace(/(.* for .* \[\w+\]$)/, "# $1\n")
-    .replace(/^Changelog$/, "## Changelog\n")
-    .replace(/^Bugs$/, "## Bugs\n")
-    .replace(/^Notes$/, "## Notes\n")
-    .replace(/^Downloads$/, "## Downloads\n")
-    .replace(/^Sources$/, "<sub>Sources</sub>\n")
-    .replace(/^Screenshots$/, "<sub>Screenshots</sub>\n")
-    .replace(/^Support group$/, "<sub>Support group</sub>\n");
+    .caption!.replaceAll(/^• /gm, "- ")
+    .replace(/^(.* for Realme .* \[\w+\])$/m, "# $1\n")
+    .replace(/^Changelog$/m, "## Changelog\n")
+    .replace(/^Bugs$/m, "## Bugs\n")
+    .replace(/^Notes$/m, "## Notes\n")
+    .replace(/^Downloads$/m, "## Downloads\n")
+    .replace(/^Sources$/m, "<sub>Sources</sub>\n")
+    .replace(/^Screenshots$/m, "<sub>Screenshots</sub>\n")
+    .replace(/^Support group$/m, "<sub>Support group</sub>\n");
 
   let cursor = 0;
 
   for (const [name, url] of pp.anchorLinks) {
-    const index = richMarkdown.indexOf(name, cursor);
-    if (index !== -1) {
+    let matchIndex = richMarkdown.indexOf(name, cursor);
+    while (matchIndex !== -1) {
+      // guard against edge case where download matches
+      // the "## Downloads" header instead of "- Download"
+      const charBefore = richMarkdown[matchIndex - 1] || "";
+      const charAfter = richMarkdown[matchIndex + name.length] || "";
+      if (!/\w/.test(charBefore) && !/\w/.test(charAfter)) {
+        break;
+      }
+
+      matchIndex = richMarkdown.indexOf(name, matchIndex + 1);
+    }
+
+    if (matchIndex !== -1) {
       const anchorTag = `<a href="${url}">${name}</a>`;
-      const insertPos = index + name.length;
 
       richMarkdown =
-        richMarkdown.slice(0, insertPos) +
+        richMarkdown.slice(0, matchIndex) +
         anchorTag +
-        richMarkdown.slice(insertPos);
+        richMarkdown.slice(matchIndex + name.length);
 
-      cursor = insertPos + anchorTag.length;
+      cursor = matchIndex + anchorTag.length;
     }
   }
 
