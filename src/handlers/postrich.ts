@@ -30,7 +30,7 @@ const postrichHandler = async (ctx: BotContext) => {
   const timeoutMatch = mText[1].match(/\d+(\.\d+)?m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
-    const timeoutInMinutes = parseFloat(timeoutMatch[1]);
+    const timeoutInMinutes = parseFloat(timeoutMatch[0].replace(/m$/, ""));
     timeoutInMs = timeoutInMinutes * 60000;
   }
   const bannerLink = mText[2];
