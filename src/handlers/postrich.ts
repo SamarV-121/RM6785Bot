@@ -64,6 +64,12 @@ const postrichHandler = async (ctx: BotContext) => {
       TELEGRAM_RM6785_CHANNEL,
       TELEGRAM_STICKER_FILE_ID
     );
+    const richCountdown = await ctx.bot.sendRichMessage(
+      TELEGRAM_RM6785_CHANNEL,
+      {
+        markdown: `# Something incoming! Scheduled in $$${timeoutInMs / 60000}$$m`,
+      }
+    );
 
     msg.stickerMessageId = sentSticker.message_id;
 
@@ -77,15 +83,22 @@ const postrichHandler = async (ctx: BotContext) => {
 
     const countdownTimeout = async (m: Message) => {
       if (secondsLeft % 5 === 0) {
+        const minutes = Math.floor(secondsLeft / 60);
+        const seconds = secondsLeft % 60;
         await ctx.bot.editMessageText(
-          `Scheduled to post in ${Math.floor(secondsLeft / 60)}m ${
-            secondsLeft % 60
-          }s`,
+          `Scheduled to post in ${minutes}m ${seconds}s`,
           {
             chat_id: chatId,
             message_id: sentMessageId,
           }
         );
+        await ctx.bot.editMessageText({
+          chat_id: TELEGRAM_RM6785_CHANNEL,
+          message_id: richCountdown.message_id,
+          rich_message: {
+            markdown: `# Something incoming! Scheduled in $$${minutes}$$m $$${seconds}$$s`,
+          },
+        });
       }
 
       if (secondsLeft <= 0) {
@@ -93,6 +106,10 @@ const postrichHandler = async (ctx: BotContext) => {
         const richMarkdown = parsePostAndConstructRichMarkdown(m, bannerLink);
         if (!richMarkdown) return;
 
+        await ctx.bot.deleteMessage(
+          TELEGRAM_RM6785_CHANNEL,
+          richCountdown.message_id
+        );
         const sentPostMessage = await ctx.bot.sendRichMessage(
           TELEGRAM_RM6785_CHANNEL,
           {
