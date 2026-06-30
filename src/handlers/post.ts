@@ -103,7 +103,7 @@ const postHandler = async (ctx: BotContext) => {
           TELEGRAM_RM6785_CHANNEL,
           countdown.message_id
         );
-        const copiedMessagePromise = await ctx.bot.copyMessage(
+        const copiedMessagePromise = ctx.bot.copyMessage(
           TELEGRAM_RM6785_CHANNEL,
           chatId,
           messageId
