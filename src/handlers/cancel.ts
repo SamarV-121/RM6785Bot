@@ -9,14 +9,14 @@ const cancelHandler = async (ctx: BotContext) => {
   const messageId = ctx.message.reply_to_message.message_id;
   const msg = messageInfo[messageId];
 
-  if (msg?.stickerMessageId) {
+  if (msg?.stickerMessageId && msg?.countdownMessageId) {
     clearTimeout(msg.timeoutId as ReturnType<typeof setTimeout>);
 
     try {
-      await ctx.bot.deleteMessage(
-        TELEGRAM_RM6785_CHANNEL,
-        msg.stickerMessageId
-      );
+      await ctx.bot.deleteMessages(TELEGRAM_RM6785_CHANNEL, [
+        msg.stickerMessageId,
+        msg.countdownMessageId,
+      ]);
       msg.isPosted = false;
       msg.stickerMessageId = null;
       msg.sentMessageId = null;

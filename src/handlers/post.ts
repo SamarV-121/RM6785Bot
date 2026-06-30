@@ -70,6 +70,7 @@ const postHandler = async (ctx: BotContext) => {
     ]);
 
     msg.stickerMessageId = sentSticker.message_id;
+    msg.countdownMessageId = countdown.message_id;
 
     const sentMessage = await replyToMessage(
       ctx,

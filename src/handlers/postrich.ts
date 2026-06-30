@@ -77,6 +77,7 @@ const postrichHandler = async (ctx: BotContext) => {
     ]);
 
     msg.stickerMessageId = sentSticker.message_id;
+    msg.countdownMessageId = richCountdown.message_id;
 
     const sentMessage = await replyToMessage(
       ctx,

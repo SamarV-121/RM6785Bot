@@ -5,6 +5,7 @@ export interface MessageInfo {
   isPosted?: boolean;
   stickerMessageId?: number | null;
   sentMessageId?: number | null;
+  countdownMessageId?: number | null;
   timeoutId?: ReturnType<typeof setTimeout> | null;
 }
 
