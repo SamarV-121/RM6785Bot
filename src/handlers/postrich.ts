@@ -60,16 +60,21 @@ const postrichHandler = async (ctx: BotContext) => {
   msg.isPosted = true;
 
   try {
-    const sentSticker = await ctx.bot.sendSticker(
+    const sentStickerPromise = ctx.bot.sendSticker(
       TELEGRAM_RM6785_CHANNEL,
       TELEGRAM_STICKER_FILE_ID
     );
-    const richCountdown = await ctx.bot.sendRichMessage(
+    const richCountdownPromise = ctx.bot.sendRichMessage(
       TELEGRAM_RM6785_CHANNEL,
       {
         markdown: `# Something incoming! Scheduled in $$${timeoutInMs / 60000}$$m`,
       }
     );
+
+    const [sentSticker, richCountdown] = await Promise.all([
+      sentStickerPromise,
+      richCountdownPromise,
+    ]);
 
     msg.stickerMessageId = sentSticker.message_id;
 
@@ -85,20 +90,21 @@ const postrichHandler = async (ctx: BotContext) => {
       if (secondsLeft % 5 === 0) {
         const minutes = Math.floor(secondsLeft / 60);
         const seconds = secondsLeft % 60;
-        await ctx.bot.editMessageText(
+        const a = ctx.bot.editMessageText(
           `Scheduled to post in ${minutes}m ${seconds}s`,
           {
             chat_id: chatId,
             message_id: sentMessageId,
           }
         );
-        await ctx.bot.editMessageText({
+        const b = ctx.bot.editMessageText({
           chat_id: TELEGRAM_RM6785_CHANNEL,
           message_id: richCountdown.message_id,
           rich_message: {
             markdown: `# Something incoming! Scheduled in $$${minutes}$$m $$${seconds}$$s`,
           },
         });
+        await Promise.all([a, b]);
       }
 
       if (secondsLeft <= 0) {
