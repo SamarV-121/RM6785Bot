@@ -20,7 +20,7 @@ const postHandler = async (ctx: BotContext) => {
   const chatId = ctx.message.chat.id;
   const messageId = ctx.message.reply_to_message.message_id;
   const votes = currentVotes(messageId);
-  const timeoutMatch = ctx.message.text?.match(/\/post \d+(\.\d+)?m/);
+  const timeoutMatch = ctx.message.text?.match(/\d+(\.\d+)?m/);
   let timeoutInMs = POST_TIMEOUT;
   if (timeoutMatch) {
     const timeoutInMinutes = parseFloat(timeoutMatch[0].replace(/m$/, ""));
@@ -52,10 +52,22 @@ const postHandler = async (ctx: BotContext) => {
   msg.isPosted = true;
 
   try {
-    const sentSticker = await ctx.bot.sendSticker(
+    const sentStickerPromise = ctx.bot.sendSticker(
       TELEGRAM_RM6785_CHANNEL,
       TELEGRAM_STICKER_FILE_ID
     );
+    const countdownPromise = ctx.bot.sendMessage(
+      TELEGRAM_RM6785_CHANNEL,
+      `Something incoming! Scheduled in <b>${timeoutInMs / 60000}m</b>`,
+      {
+        parse_mode: "html",
+      }
+    );
+
+    const [sentSticker, countdown] = await Promise.all([
+      sentStickerPromise,
+      countdownPromise,
+    ]);
 
     msg.stickerMessageId = sentSticker.message_id;
 
@@ -69,23 +81,39 @@ const postHandler = async (ctx: BotContext) => {
 
     const countdownTimeout = async () => {
       if (secondsLeft % 5 === 0) {
-        await ctx.bot.editMessageText(
-          `Scheduled to post in ${Math.floor(secondsLeft / 60)}m ${
-            secondsLeft % 60
-          }s`,
+        const minutes = Math.floor(secondsLeft / 60);
+        const seconds = secondsLeft % 60;
+        const a = ctx.bot.editMessageText(
+          `Scheduled to post in ${minutes}m ${seconds}s`,
           {
             chat_id: chatId,
             message_id: sentMessageId,
           }
         );
+        const b = ctx.bot.editMessageText({
+          chat_id: TELEGRAM_RM6785_CHANNEL,
+          message_id: countdown.message_id,
+          text: `Something incoming! Scheduled in <b>${minutes}m ${seconds}s</b>`,
+          parse_mode: "html",
+        });
+        await Promise.all([a, b]);
       }
 
       if (secondsLeft <= 0) {
-        const copiedMessage = await ctx.bot.copyMessage(
+        const deletePromise = ctx.bot.deleteMessage(
+          TELEGRAM_RM6785_CHANNEL,
+          countdown.message_id
+        );
+        const copiedMessagePromise = await ctx.bot.copyMessage(
           TELEGRAM_RM6785_CHANNEL,
           chatId,
           messageId
         );
+
+        const [_, copiedMessage] = await Promise.all([
+          deletePromise,
+          copiedMessagePromise,
+        ]);
 
         msg.isPosted = false;
 
