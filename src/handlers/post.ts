@@ -83,13 +83,11 @@ const postHandler = async (ctx: BotContext) => {
       if (secondsLeft % 5 === 0) {
         const minutes = Math.floor(secondsLeft / 60);
         const seconds = secondsLeft % 60;
-        const a = ctx.bot.editMessageText(
-          `Scheduled to post in ${minutes}m ${seconds}s`,
-          {
-            chat_id: chatId,
-            message_id: sentMessageId,
-          }
-        );
+        const a = ctx.bot.editMessageText({
+          chat_id: chatId,
+          message_id: sentMessageId,
+          text: `Scheduled to post in ${minutes}m ${seconds}s`,
+        });
         const b = ctx.bot.editMessageText({
           chat_id: TELEGRAM_RM6785_CHANNEL,
           message_id: countdown.message_id,
@@ -117,9 +115,10 @@ const postHandler = async (ctx: BotContext) => {
 
         msg.isPosted = false;
 
-        await ctx.bot.editMessageText("Posted successfully!", {
+        await ctx.bot.editMessageText({
           chat_id: chatId,
           message_id: sentMessageId,
+          text: "Posted successfully!",
         });
 
         try {
