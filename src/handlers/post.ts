@@ -11,6 +11,7 @@ import {
   TELEGRAM_RM6785_CHANNEL,
   TELEGRAM_RM6785_CHAT,
   TELEGRAM_R7_CHAT,
+  TEST_MODE,
 } from "../constants";
 import { replyToMessage } from "../utils/contextUtils";
 
@@ -41,7 +42,7 @@ const postHandler = async (ctx: BotContext) => {
     return;
   }
 
-  if (!hasEnoughVotes(messageId)) {
+  if (!TEST_MODE && !hasEnoughVotes(messageId)) {
     await replyToMessage(
       ctx,
       `This message does not have enough approvals (${votes}/${MAX_VOTES})`
