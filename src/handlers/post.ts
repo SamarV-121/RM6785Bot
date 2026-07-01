@@ -14,6 +14,7 @@ import {
   TEST_MODE,
 } from "../constants";
 import { replyToMessage } from "../utils/contextUtils";
+import { InputMediaPhoto, Message } from "node-telegram-bot-api";
 
 const postHandler = async (ctx: BotContext) => {
   if (!ctx.message.reply_to_message || !ctx.message.text) return;
@@ -53,22 +54,17 @@ const postHandler = async (ctx: BotContext) => {
   msg.isPosted = true;
 
   try {
-    const sentStickerPromise = ctx.bot.sendSticker(
+    const sentSticker = await ctx.bot.sendSticker(
       TELEGRAM_RM6785_CHANNEL,
       TELEGRAM_STICKER_FILE_ID
     );
-    const countdownPromise = ctx.bot.sendMessage(
+    const countdown = await ctx.bot.sendMessage(
       TELEGRAM_RM6785_CHANNEL,
       `Something incoming! Scheduled in <b>${timeoutInMs / 60000}m</b>`,
       {
         parse_mode: "html",
       }
     );
-
-    const [sentSticker, countdown] = await Promise.all([
-      sentStickerPromise,
-      countdownPromise,
-    ]);
 
     msg.stickerMessageId = sentSticker.message_id;
     msg.countdownMessageId = countdown.message_id;
@@ -100,20 +96,15 @@ const postHandler = async (ctx: BotContext) => {
       }
 
       if (secondsLeft <= 0) {
-        const deletePromise = ctx.bot.deleteMessage(
-          TELEGRAM_RM6785_CHANNEL,
-          countdown.message_id
-        );
-        const copiedMessagePromise = ctx.bot.copyMessage(
-          TELEGRAM_RM6785_CHANNEL,
-          chatId,
-          messageId
-        );
-
-        const [_, copiedMessage] = await Promise.all([
-          deletePromise,
-          copiedMessagePromise,
-        ]);
+        const editedCountdown = (await ctx.bot.editMessageMedia(
+          {
+            type: "photo",
+            media: ctx.message.reply_to_message!.photo![0].file_id,
+            caption: ctx.message.reply_to_message!.caption!,
+            caption_entities: ctx.message.reply_to_message!.caption_entities!,
+          } as InputMediaPhoto,
+          { chat_id: TELEGRAM_RM6785_CHANNEL, message_id: countdown.message_id }
+        )) as Message;
 
         msg.isPosted = false;
 
@@ -128,7 +119,7 @@ const postHandler = async (ctx: BotContext) => {
             const forwardedMsg = await ctx.bot.forwardMessage(
               toChat,
               fromChat,
-              copiedMessage.message_id
+              editedCountdown.message_id
             );
             await ctx.bot.pinChatMessage(toChat, forwardedMsg.message_id);
           };
